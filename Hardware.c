@@ -14,3 +14,8 @@ typedef struct
     //  Rasarving ~64kb Ram
     uint8_t ram[65536];
 } Register;
+
+
+void Imadding(){
+    // T2 added this bro ☺
+}
