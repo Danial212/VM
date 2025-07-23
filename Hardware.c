@@ -11,11 +11,13 @@ typedef struct
     uint8_t R3;
     uint8_t R4;
 
-    //  Rasarving ~64kb Ram
-    uint8_t ram[65536];
 } Register;
 
 
 void Imadding(){
     // T2 added this bro ☺
+}
+
+void testingPush(){
+    // main added this bro ☺
 }
