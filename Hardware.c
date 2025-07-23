@@ -14,3 +14,7 @@ typedef struct
     //  Rasarving ~64kb Ram
     uint8_t ram[65536];
 } Register;
+
+void moveToRegister(){
+    //  simple code for testing
+}
