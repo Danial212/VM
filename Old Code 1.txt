@@ -3,6 +3,9 @@
 #include "Hardware.c"
 #include "string.h"
 
+void operate(char *c1, char *c2, char *c3, char *c4);
+void runCLI(char *input);
+
 Register _reg;
 
 /// @param _registerNumber The Data of the register with the given number
@@ -26,7 +29,6 @@ int getRegisterData(int _registerNumber)
     return -999;
 }
 
-// Move a Data into the regiser with the given number
 void MOV(int regNumber, int data)
 {
     switch (regNumber)
@@ -46,10 +48,7 @@ void MOV(int regNumber, int data)
     }
 }
 
-//  Saving the sum of blow datas in:
-//      first register(opRegN1),
-//      and secound register(opRegN2),
-//  and saving it into third register (opRegN3)
+//  Register Number 1  1 + 2 = 3
 void ADD(int opRegN1, int opRegN2, int opRegN3)
 {
     //  Data 1 + data2 = register3
@@ -71,6 +70,66 @@ void ADD(int opRegN1, int opRegN2, int opRegN3)
         break;
     }
 }
+
+int main()
+{
+    while (1)
+    {
+        char *input = malloc(32 * sizeof(char));
+        gets(input);
+        runCLI(input);
+    }
+}
+
+//  Processing inputs from CLI
+//  CLI: Command Line Interface
+void runCLI(char *input)
+{
+    int maxOpcodeSize = 8 * sizeof(char);
+    char *c1 = malloc(maxOpcodeSize), *c2 = malloc(maxOpcodeSize), *c3 = malloc(maxOpcodeSize), *c4 = malloc(maxOpcodeSize);
+    int l1 = 0, l2 = 0, l3 = 0, l4 = 0;
+
+    int inputLength = strlen(input);
+    int currentToken = 1;
+
+    for (int i = 0; i < inputLength; i++)
+    {
+        char c = *(input + i);
+
+        if (c == ' ')
+        {
+            currentToken++;
+        }
+        else if (c == '\n' || c == EOF)
+            continue;
+        else
+        {
+            switch (currentToken)
+            {
+            case 1:
+                *(c1 + l1) = c;
+                l1++;
+                *(c1 + l1) = '\0';
+                break;
+            case 2:
+                *(c2 + l2++) = c;
+                *(c2 + l2) = '\0';
+                break;
+            case 3:
+                *(c3 + l3++) = c;
+                *(c3 + l3) = '\0';
+                break;
+            case 4:
+                *(c4 + l4++) = c;
+                *(c4 + l4) = '\0';
+                break;
+            }
+        }
+    }
+
+    operate(c1, c2, c3, c4);
+}
+
 
 //  The main language Interpretur, can run codes with assembly-like syntex
 void operate(char *c1, char *c2, char *c3, char *c4)
@@ -94,22 +153,3 @@ void operate(char *c1, char *c2, char *c3, char *c4)
         printf(">%d\n", getRegisterData(registerNumber));
     }
 }
-
-int main()
-{
-    //  A simple program for printing the result of 15+8 on screen
-
-    //  Load first number (15), into register 'R1'
-    operate("MOV", "R1", "15", "");
-
-    //  Load secound number (8), into register 'R2'
-    operate("MOV", "R2", "8", "");
-
-    //  Saving the result of [15 + 8] into Register 'R3'
-    operate("ADD", "R1", "R2", "R3");
-
-    //  Printing the data from register R3, witch is 23
-    operate("PRI", "R3", "15", "");
-}
-
-
