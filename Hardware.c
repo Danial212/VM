@@ -13,6 +13,11 @@ typedef struct
 
 } Register;
 
+
+void Imadding(){
+    // T2 added this bro ☺
+}
+
 void testingPush(){
-    
+    // main added this bro ☺
 }
