@@ -19,6 +19,12 @@ void LoadImmediate(int value, int destinationRegister)
     WriteIntoRegister(destinationRegister, value);
 }
 
+//  Load Value From Ram Into Register
+void MoveRamToRegister(int ramLocation, int destinationRegister)
+{
+    int data = ReadFromRAM(ramLocation);
+    WriteIntoRegister(destinationRegister, data);
+}
 // =============================================
 //              Arithmetic Operations
 // =============================================
@@ -78,6 +84,17 @@ void ModuloRegisters(int registerA, int registerB)
 //              Memory Operations
 // =============================================
 
+//  Load Value From Register Into RAM
+void MoveRegisterToRAM(int ramLocation, int sourceRegister)
+{
+    int data = ReadDataFromRegister(sourceRegister);
+    WriteIntoRam(ramLocation, data);
+}
+
+// =============================================
+//              Output Operations
+// =============================================
+
 // Print value from RAM at specified location
 void PrintRamValue(int ramLocation)
 {
@@ -86,4 +103,12 @@ void PrintRamValue(int ramLocation)
         printf("📦 RAM[%d] = %d\n", ramLocation, value);
     else
         printf("📦 RAM[%d] is empty.\n", ramLocation);
+}
+
+// Print value from Register
+void PrintRegisterValue(int destinationRegister)
+{
+    int value = ReadDataFromRegister(destinationRegister);
+
+    printf("📦 REG[%d] = %d\n", destinationRegister, value);
 }

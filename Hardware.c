@@ -127,8 +127,3 @@ int IsRamAvalible(int location)
 {
     return (ReadFromRAM(location) == RAM_EMPTY_DATA);
 }
-
-int main()
-{
-    InitializeHardWare();
-}
