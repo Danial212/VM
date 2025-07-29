@@ -2,9 +2,11 @@
 #include "stdint.h"
 #include <stdlib.h>
 
-
 #define RAM_SIZE 1024
 #define RAM_EMPTY_DATA -1
+
+const int REGISTER_COUNT = 4;
+const int RAM_SPACE = RAM_SIZE;
 
 //  This simple structure, is a simple Memoty of a computer
 //  Containing 4 Register and 1 RAM
@@ -55,6 +57,11 @@ void InitializeHardWare()
         fprintf(stderr, "Memory allocation failed!");
         exit(EXIT_FAILURE);
     }
+    *hardwareBoard.R1 = 11;
+    *hardwareBoard.R2 = 12;
+    *hardwareBoard.R3 = 13;
+    *hardwareBoard.R4 = 14;
+
     RamCleaning();
 }
 

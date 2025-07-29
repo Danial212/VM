@@ -6,52 +6,39 @@
 //              Register Operations
 // =============================================
 
-// Move data from RegisterA to RegisterB
-void MoveRegisterToRegister(int sourceRegister, int destinationRegister)
-{
-    int value = ReadDataFromRegister(sourceRegister);
-    WriteIntoRegister(destinationRegister, value);
-}
-
 // Load immediate value into register
-void LoadImmediate(int value, int destinationRegister)
+void LoadImmediateIntoRegister(int destinationRegister, int value)
 {
     WriteIntoRegister(destinationRegister, value);
 }
 
-//  Load Value From Ram Into Register
-void MoveRamToRegister(int ramLocation, int destinationRegister)
-{
-    int data = ReadFromRAM(ramLocation);
-    WriteIntoRegister(destinationRegister, data);
-}
 // =============================================
 //              Arithmetic Operations
 // =============================================
 
 // Add RegisterB to RegisterA (result in RegisterA)
-void AddRegisters(int registerA, int registerB)
+void Add_Registers(int registerA, int registerB)
 {
     int result = ReadDataFromRegister(registerA) + ReadDataFromRegister(registerB);
     WriteIntoRegister(registerA, result);
 }
 
 // Subtract RegisterB from RegisterA (result in RegisterA)
-void SubtractRegisters(int registerA, int registerB)
+void Subtract_Registers(int registerA, int registerB)
 {
     int result = ReadDataFromRegister(registerA) - ReadDataFromRegister(registerB);
     WriteIntoRegister(registerA, result);
 }
 
 // Multiply RegisterA by RegisterB (result in RegisterA)
-void MultiplyRegisters(int registerA, int registerB)
+void Multiply_Registers(int registerA, int registerB)
 {
     int result = ReadDataFromRegister(registerA) * ReadDataFromRegister(registerB);
     WriteIntoRegister(registerA, result);
 }
 
 // Divide RegisterA by RegisterB (result in RegisterA)
-void DivideRegisters(int registerA, int registerB)
+void Divide_Registers(int registerA, int registerB)
 {
     int divisor = ReadDataFromRegister(registerB);
     if (divisor != 0)
@@ -60,9 +47,7 @@ void DivideRegisters(int registerA, int registerB)
         WriteIntoRegister(registerA, result);
     }
     else
-    {
         printf("⚠️ Error: Division by zero!\n");
-    }
 }
 
 // Store remainder of division in RegisterA
@@ -75,20 +60,17 @@ void ModuloRegisters(int registerA, int registerB)
         WriteIntoRegister(registerA, result);
     }
     else
-    {
         printf("⚠️ Error: Modulo by zero!\n");
-    }
 }
 
 // =============================================
 //              Memory Operations
 // =============================================
 
-//  Load Value From Register Into RAM
-void MoveRegisterToRAM(int ramLocation, int sourceRegister)
+//  Load immediate value into RAM
+void LoadImmediateIntoRAM(int ramLocation, int value)
 {
-    int data = ReadDataFromRegister(sourceRegister);
-    WriteIntoRam(ramLocation, data);
+    WriteIntoRam(ramLocation, value);
 }
 
 // =============================================
