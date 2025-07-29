@@ -1,4 +1,5 @@
 #include "stdio.h"
+#include <math.h>
 #include "stdint.h"
 #include <stdlib.h>
 
@@ -43,6 +44,9 @@ int *ReadRegisterPointer(int registerNumber);
 void MoveFrom_R_to_RAM(int _register_Number, int RAM_location);
 void MoveFrom_RAM_to_R(int _register_Number, int RAM_location);
 int IsRamAvalible(int location);
+int *GetRamPointer(int);
+int int_length(int num);
+void RegistersManitoring();
 
 /// @brief Initializing the basic component of the VM [like Cleaning RAM, Allocating Register, etc...]
 /// @warning This function has to get executed before any other functions
@@ -70,6 +74,11 @@ void RamCleaning()
 {
     for (size_t i = 0; i < RAM_SIZE; i++)
         hardwareBoard.ram[i] = RAM_EMPTY_DATA;
+}
+
+int *GetRamPointer(int ramLocation)
+{
+    return (hardwareBoard.ram + ramLocation);
 }
 
 /// @brief  Save the data into RAM
@@ -133,4 +142,43 @@ void MoveFrom_RAM_to_R(int RAM_location, int _register_Number)
 int IsRamAvalible(int location)
 {
     return (ReadFromRAM(location) == RAM_EMPTY_DATA);
+}
+
+//  The length if a digit
+int int_length(int num)
+{
+    if (num == 0)
+        return 1;
+    return (floor(log10(num)) + 1);
+}
+
+//  Printing the states of all register at the time
+void RegistersManitoring()
+{
+    printf("######################## Registers #########################\n");
+    int len = int_length(*hardwareBoard.R1);
+    printf("1: %d", *hardwareBoard.R1);
+    for (size_t i = 0; i < 15 - len - 4; i++)
+        printf(" ");
+    printf("|");
+
+    len = int_length(*hardwareBoard.R2);
+    printf("2: %d", *hardwareBoard.R2);
+    for (size_t i = 0; i < 15 - len - 4; i++)
+        printf(" ");
+    printf("|");
+
+    len = int_length(*hardwareBoard.R3);
+    printf("3: %d", *hardwareBoard.R3);
+    for (size_t i = 0; i < 15 - len - 4; i++)
+        printf(" ");
+    printf("|");
+
+    len = int_length(*hardwareBoard.R4);
+    printf("4: %d", *hardwareBoard.R4);
+    for (size_t i = 0; i < 15 - len - 4; i++)
+        printf(" ");
+    printf("|\n");
+
+    printf("------------------------------------------------------------\n");
 }

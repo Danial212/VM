@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "interpreter.c"
 
 //////////////////////////////////////////////////////////////////
-//                  STACK STRUCTURE OPERATIONS                   
+//                  STACK STRUCTURE OPERATIONS
 //////////////////////////////////////////////////////////////////
 
 //  Saving The Stack into the Ram, starts at the 'startLocation' location of the RAM
@@ -13,6 +12,7 @@ int Stack_IsEmpty();
 int Stack_hasSpace();
 int Stack_Push(int value);
 int Stack_Pop();
+void Stack_Manitoring();
 
 const int copacity = 24;
 const int startLocation = 1000;
@@ -68,4 +68,30 @@ int Stack_hasSpace()
 int Stack_length()
 {
     return stackIndex;
+}
+
+//  Printing the states of the stack
+void Stack_Manitoring()
+{
+    printf("########################## STACK ###########################\n|");
+
+    for (size_t i = 0; i < Stack_length(); i++)
+    {
+        int number = ReadFromRAM(startLocation + i);
+        int spaceLangth = 5 - int_length(number);
+        int L1 = spaceLangth / 2;
+        int L2 = spaceLangth - L1;
+        for (size_t j = 0; j < L1; j++)
+            printf(" ");
+        printf("%d", number);
+        for (size_t j = 0; j < L2; j++)
+            printf(" ");
+
+        if ((i+1) % 10 == 0)
+            printf("\n");
+
+        printf("|");
+    }
+
+    printf("\n------------------------------------------------------------\n");
 }

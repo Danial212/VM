@@ -1,20 +1,18 @@
-#include <stdio.h>
-#include <stdint.h>
-#include "interpreter.c"
 #include <string.h>
-#include <stdlib.h>
+#include "interpreter.c"
+#include "Structure.c"
 
 void InputReciver(char **, int);
 int StrEqul(char *, char *);
 void RunPussembler(char **);
 int ValueParser(char *token);
 void DebugLog(const char *__format, ...);
+int *GetTargetStoragePointer(char *token);
 
 const int DEBUG_LOG = 1;
 
 int main(int argc, char const *argv[])
 {
-
     InitializeHardWare();
 
     char **tokens = malloc(4 * sizeof(char *));
@@ -24,9 +22,13 @@ int main(int argc, char const *argv[])
         InputReciver(tokens, 4);
 
         RunPussembler(tokens);
+
+        RegistersManitoring();
+        Stack_Manitoring();
     }
 }
 
+//  Getting User input 
 void InputReciver(char **buffer, int count)
 {
     for (size_t i = 0; i < count; i++)
@@ -55,12 +57,13 @@ void InputReciver(char **buffer, int count)
     buffer[tokenIndex][charIndex] = '\0';
 }
 
+//  if 2 string are equal, case insetsitive
 int StrEqul(char *str1, char *str2)
 {
     return stricmp(str1, str2) == 0;
 }
 
-//  Run the codes, [now sure about the Pussembler Spell (:]
+//  Run the codes, [not sure about the Pussembler Spell (:]
 void RunPussembler(char **tokens)
 {
     if (StrEqul(tokens[0], "LOAD"))
@@ -87,6 +90,42 @@ void RunPussembler(char **tokens)
             WriteIntoRam(destinationRAM, data);
         }
     }
+    else if (StrEqul(tokens[0], "ADD"))
+    {
+        /* Addition Operartion Code */
+    }
+    else if (StrEqul(tokens[0], "SUB"))
+    {
+        /* Subtraction Operartion Code */
+    }
+    else if (StrEqul(tokens[0], "MUL"))
+    {
+        /* Multiplication Operartion Code */
+    }
+    else if (StrEqul(tokens[0], "DIV"))
+    {
+        /* division Operartion Code */
+    }
+    else if (StrEqul(tokens[0], "MOD"))
+    {
+        /* Modulo Operartion Code */
+    }
+    else if (StrEqul(tokens[0], "OUT"))
+    {
+        /* write Output
+            it should handle RAM and Register
+            */
+    }
+    else if (StrEqul(tokens[0], "PUSH"))
+    {
+        int value = ValueParser(tokens[1]);
+        Stack_Push(value);
+    }
+    else if (StrEqul(tokens[0], "POP"))
+    {
+        int *targetStorage = GetTargetStoragePointer(tokens[1]);
+        *targetStorage = Stack_Pop();
+    }
 }
 
 //  Extract the data from the given token.
@@ -107,12 +146,42 @@ int ValueParser(char *token)
         int data = ReadFromRAM(RamLocation);
         return data;
     }
+    else if (StrEqul(token, "POP"))
+    {
+        if (!Stack_IsEmpty())
+        {
+            int data = Stack_Pop();
+            return data;
+        }
+        else
+            /// STACK EMPTY ERROR
+            return -1;
+    }
     else
         return atoi(token);
 }
 
+// Enable In-Programm debuging, if the 'DEBUG_LOG' is True(1)
 void DebugLog(const char *__format, ...)
 {
     if (DEBUG_LOG)
         printf(__format);
+}
+
+//  Get Register/RAM pointer
+int *GetTargetStoragePointer(char *token)
+{
+    if (token[0] == 'R')
+    {
+        int destinationRegister = atoi(token + 1);
+        int *reg_pointer = ReadRegisterPointer(destinationRegister);
+        return reg_pointer;
+    }
+    else if (token[0] == '#')
+    {
+        int RamLocation = atoi(token + 1);
+        int *ram_poiner = GetRamPointer(RamLocation);
+        return ram_poiner;
+    }
+    return NULL;
 }
