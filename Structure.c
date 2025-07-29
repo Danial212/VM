@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "GlobalVaribles.h"
 
 //////////////////////////////////////////////////////////////////
 //                  STACK STRUCTURE OPERATIONS
@@ -21,7 +22,7 @@ static int stackIndex = 0;
 int Stack_Initialize()
 {
     //  'copacity' + 'startLocation' must be less than RAM's size
-    if (startLocation + copacity > RAM_SPACE)
+    if (startLocation + copacity > RAM_SIZE)
     {
         printf("E.24\nStack Over RAM");
         exit(EXIT_FAILURE);

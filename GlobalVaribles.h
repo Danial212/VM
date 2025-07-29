@@ -1,0 +1,1 @@
+#define RAM_SIZE 1024

@@ -2,8 +2,8 @@
 #include <math.h>
 #include "stdint.h"
 #include <stdlib.h>
+#include "GlobalVaribles.h"
 
-#define RAM_SIZE 1024
 #define RAM_EMPTY_DATA -1
 
 const int REGISTER_COUNT = 4;
