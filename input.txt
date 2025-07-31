@@ -1,0 +1,12 @@
+LOAD R1 28
+LOAD R2 325
+LOAD R4 256
+# we will ignore this part, even though it's made of more than 4 tokesn
+PUSH 32
+GOTO L2
+# command lines start with the symbol '#'
+
+PUSH 245
+Out R1
+LABEL L2
+Out R4

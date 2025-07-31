@@ -2,71 +2,145 @@
 #include "interpreter.c"
 #include "Structure.c"
 
-void InputReciver(char **, int);
+int InputReciver(char **, int);
 int StrEqul(char *, char *);
 void RunPussembler(char **);
 int ValueParser(char *token);
 void DebugLog(const char *__format, ...);
 int *GetTargetStoragePointer(char *token);
+void LabelListing();
+void Labels_manitoring();
+void FileReading();
+int findLabelLine(char *labelName);
 
 const int DEBUG_LOG = 1;
+static int currentLine = 0;
+
+typedef struct
+{
+    char **tokens;
+} CommandStrcuture;
+
+typedef struct
+{
+    char *labelName;
+    int labelLine;
+} Label;
+
+static CommandStrcuture lines[100];
+static int linesCount = 0;
+static Label labelsList[10];
+static int labelsCount = 0;
+
+FILE *file;
 
 int main(int argc, char const *argv[])
 {
     InitializeHardWare();
+    FileReading();
+    LabelListing();
 
-    char **tokens = malloc(4 * sizeof(char *));
+    for (currentLine = 0; currentLine < linesCount; currentLine++)
+        RunPussembler(lines[currentLine].tokens);
 
-    while (1)
-    {
-        InputReciver(tokens, 4);
-
-        RunPussembler(tokens);
-
-        RegistersManitoring();
-        Stack_Manitoring();
-    }
+    RegistersManitoring();
+    Stack_Manitoring();
+    Labels_manitoring();
 }
 
-//  Getting User input 
-void InputReciver(char **buffer, int count)
+//  Open and read all the codes inside the target file
+void FileReading()
 {
+    file = fopen("input.txt", "r");
+
+    for (size_t i = 0; i < 100; i++)
+    {
+        linesCount = i + 1;
+        lines[i].tokens = malloc(4 * sizeof(char *));
+        
+        int canContinue = InputReciver(lines[i].tokens, 4);
+        if (canContinue == -1)
+            break;
+    }
+    fclose(file);
+}
+
+/// @brief User input
+/// @returns 0:  Continue getting input,  -1: End of input
+/// @warning The 'file' that we'll read the code from it, should be open first
+int InputReciver(char **buffer, int count)
+{
+    if (file == NULL)
+        DebugLog("The target file to read the code couldn't be read");
+
     for (size_t i = 0; i < count; i++)
         buffer[i] = malloc(8);
 
+    int ignoreLine = 0;
     int charIndex = 0;
     int tokenIndex = 0;
     char c;
-    while ((c = getchar()) != '\n' && c != EOF)
+    while ((c = fgetc(file)) != '\n' && c != EOF)
     {
+        //  ognore and pass the lines that contain Comment in the code
+        if (c == '#')
+            ignoreLine = 1;
+        if (ignoreLine)
+            continue;
+
         //  Handle multi space input, and treat like it's just one space
-        //  So the command 'LOAD   R2', is the same as 'LOAD R2'
+        //  So the command "LOAD   R2", is the same as "LOAD R2"
         if (c == ' ')
         {
-            buffer[tokenIndex][charIndex] = '\0';
-            tokenIndex++;
-            while ((c = getchar()) != '\n')
+            buffer[tokenIndex++][charIndex] = '\0';
+            while ((c = fgetc(file)) != '\n')
                 if (c != ' ')
                     break;
 
             charIndex = 0;
         }
+        if (c == '\n')
+            break;
 
         buffer[tokenIndex][charIndex++] = c;
     }
     buffer[tokenIndex][charIndex] = '\0';
+
+    //  When we hit the end of the code, when we're reading the codes from a file
+    if (c == EOF)
+        return -1;
+
+    return 0;
 }
 
-//  if 2 string are equal, case insetsitive
+//  Check if 2 string are equal, case in-setsitive
 int StrEqul(char *str1, char *str2)
 {
     return stricmp(str1, str2) == 0;
 }
 
-//  Run the codes, [not sure about the Pussembler Spell (:]
+//  List all the label, sith their name and line number, for later jumping actions
+void LabelListing()
+{
+    for (size_t i = 0; i < linesCount; i++)
+    {
+        if (StrEqul(lines[i].tokens[0], "LABEL"))
+        {
+            labelsList[labelsCount].labelLine = i;
+            labelsList[labelsCount].labelName = lines[i].tokens[1];
+            labelsCount++;
+        }
+    }
+}
+
+//  Run the codes command line-by-line, [not sure about the Pussembler Spell (:]
 void RunPussembler(char **tokens)
 {
-    if (StrEqul(tokens[0], "LOAD"))
+    if (StrEqul(tokens[0], "//"))
+    {
+        //  DO NOTHING
+    }
+    else if (StrEqul(tokens[0], "LOAD"))
     {
         //  The data we want to write into RAM/Register
         //  It could be from any source, like RAM, Register or directly thorugh user input
@@ -112,9 +186,7 @@ void RunPussembler(char **tokens)
     }
     else if (StrEqul(tokens[0], "OUT"))
     {
-        /* write Output
-            it should handle RAM and Register
-            */
+        printf("%d\n", ValueParser(tokens[1]));
     }
     else if (StrEqul(tokens[0], "PUSH"))
     {
@@ -125,6 +197,22 @@ void RunPussembler(char **tokens)
     {
         int *targetStorage = GetTargetStoragePointer(tokens[1]);
         *targetStorage = Stack_Pop();
+    }
+    else if (StrEqul(tokens[0], "GOTO"))
+    {
+        currentLine = findLabelLine(tokens[1]);
+    }
+    else if (StrEqul(tokens[0], "Label"))
+    {
+        //  DO NOTHING
+    }
+    else if (StrEqul(tokens[0], "IF"))
+    {
+        //  IF statement block
+    }
+    else if (StrEqul(tokens[0], "ELSE"))
+    {
+        //  ELSE statement block
     }
 }
 
@@ -184,4 +272,24 @@ int *GetTargetStoragePointer(char *token)
         return ram_poiner;
     }
     return NULL;
+}
+
+//  Print all the labels in our code
+void Labels_manitoring()
+{
+    for (size_t i = 0; i < labelsCount; i++)
+    {
+        printf("Label <%s> at the line #%d", labelsList[i].labelName, labelsList[i].labelLine + 1);
+    }
+}
+
+//  Find the line number of the given label
+int findLabelLine(char *labelName)
+{
+    for (size_t i = 0; i <= labelsCount; i++)
+        if (StrEqul(labelName, labelsList[i].labelName))
+            return labelsList[i].labelLine;
+
+    DebugLog("The target label <%s> cound't be found", labelName);
+    return -1;
 }
