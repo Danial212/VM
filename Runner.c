@@ -120,6 +120,7 @@ int StrEqul(char *str1, char *str2)
     return stricmp(str1, str2) == 0;
 }
 
+
 //  List all the label, sith their name and line number, for later jumping actions
 void LabelListing()
 {
@@ -135,6 +136,8 @@ void LabelListing()
 }
 
 //  Run the codes command line-by-line, [not sure about the Pussembler Spell (:]
+//  Run the codes, [not sure about the Pussembler Spell (:] {that's correct dude :))}
+
 void RunPussembler(char **tokens)
 {
     if (StrEqul(tokens[0], "//"))
@@ -165,35 +168,59 @@ void RunPussembler(char **tokens)
             WriteIntoRam(destinationRAM, data);
         }
     }
+
+    // Adds value of RegisterB to RegisterA → Result saved in RegisterA
     else if (StrEqul(tokens[0], "ADD"))
     {
-        /* Addition Operartion Code */
+        int A = atoi(tokens[1] + 1);
+        int B = atoi(tokens[2] + 1);
+        Add_Registers(A, B);
     }
+
+    // Subtracts value of RegisterB from RegisterA → Result saved in RegisterA
     else if (StrEqul(tokens[0], "SUB"))
     {
-        /* Subtraction Operartion Code */
+        int A = atoi(tokens[1] + 1);
+        int B = atoi(tokens[2] + 1);
+        Subtract_Registers(A, B);
     }
+
+    // Multiplies RegisterA by RegisterB → Result saved in RegisterA
     else if (StrEqul(tokens[0], "MUL"))
     {
-        /* Multiplication Operartion Code */
+        int A = atoi(tokens[1] + 1);
+        int B = atoi(tokens[2] + 1);
+        Multiply_Registers(A, B);
     }
+
+    // Divides RegisterA by RegisterB → Result saved in RegisterA
     else if (StrEqul(tokens[0], "DIV"))
     {
-        /* division Operartion Code */
+        int A = atoi(tokens[1] + 1);
+        int B = atoi(tokens[2] + 1);
+        Divide_Registers(A, B);
     }
+
+    // Divides RegisterA by RegisterB → Result saved in RegisterA
     else if (StrEqul(tokens[0], "MOD"))
     {
-        /* Modulo Operartion Code */
+        int A = atoi(tokens[1] + 1);
+        int B = atoi(tokens[2] + 1);
+        ModuloRegisters(A, B);
     }
+
+    // Outputs the value of a Register or a RAM cell
     else if (StrEqul(tokens[0], "OUT"))
     {
         printf("%d\n", ValueParser(tokens[1]));
     }
+
     else if (StrEqul(tokens[0], "PUSH"))
     {
         int value = ValueParser(tokens[1]);
         Stack_Push(value);
     }
+
     else if (StrEqul(tokens[0], "POP"))
     {
         int *targetStorage = GetTargetStoragePointer(tokens[1]);
