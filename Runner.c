@@ -53,6 +53,9 @@ void FileReading()
 {
     file = fopen("input.txt", "r");
 
+    if (file == NULL)
+        DebugLog("The target file to read the code couldn't be read");
+
     for (size_t i = 0; i < 100; i++)
     {
         linesCount = i + 1;
@@ -70,8 +73,6 @@ void FileReading()
 /// @warning The 'file' that we'll read the code from it, should be open first
 int InputReciver(char **buffer, int count)
 {
-    if (file == NULL)
-        DebugLog("The target file to read the code couldn't be read");
 
     for (size_t i = 0; i < count; i++)
         buffer[i] = malloc(8);
