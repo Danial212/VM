@@ -1,12 +1,18 @@
-LOAD R1 28
-LOAD R2 325
-LOAD R4 256
-# we will ignore this part, even though it's made of more than 4 tokesn
-PUSH 32
-GOTO L2
-# command lines start with the symbol '#'
+LOAD R1 2800
+LOAD R2 1
 
-PUSH 245
-Out R1
-LABEL L2
-Out R4
+LABEL LB1
+
+ADD R1 R2
+OUT R1
+
+IF MEQ R1 R2 GOTO LB1
+
+# the conditions we can use in our if block
+# EQL
+# NEQ
+# LES
+# LEQ
+# MOR
+# MEQ
+# teset here

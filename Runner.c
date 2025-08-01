@@ -59,9 +59,9 @@ void FileReading()
     for (size_t i = 0; i < 100; i++)
     {
         linesCount = i + 1;
-        lines[i].tokens = malloc(4 * sizeof(char *));
-        
-        int canContinue = InputReciver(lines[i].tokens, 4);
+        lines[i].tokens = malloc(MAX_Command_Tokens * sizeof(char *));
+
+        int canContinue = InputReciver(lines[i].tokens, MAX_Command_Tokens);
         if (canContinue == -1)
             break;
     }
@@ -73,7 +73,6 @@ void FileReading()
 /// @warning The 'file' that we'll read the code from it, should be open first
 int InputReciver(char **buffer, int count)
 {
-
     for (size_t i = 0; i < count; i++)
         buffer[i] = malloc(8);
 
@@ -119,7 +118,6 @@ int StrEqul(char *str1, char *str2)
 {
     return stricmp(str1, str2) == 0;
 }
-
 
 //  List all the label, sith their name and line number, for later jumping actions
 void LabelListing()
@@ -236,11 +234,32 @@ void RunPussembler(char **tokens)
     }
     else if (StrEqul(tokens[0], "IF"))
     {
-        //  IF statement block
-    }
-    else if (StrEqul(tokens[0], "ELSE"))
-    {
-        //  ELSE statement block
+        int result = 0;
+        
+        //  Tow value we want to compare toghater
+        int value1 = ValueParser(tokens[2]);
+        int value2 = ValueParser(tokens[3]);
+
+        //  The target label, we want to jump if the condition was true
+        char *label = tokens[5];
+
+
+        if (StrEqul(tokens[1], "EQL"))
+            result = value1 == value2;
+        else if (StrEqul(tokens[1], "NEQ"))
+            result = value1 != value2;
+        else if (StrEqul(tokens[1], "LES"))
+            result = value1 < value2;
+        else if (StrEqul(tokens[1], "LEQ"))
+            result = value1 <= value2;
+        else if (StrEqul(tokens[1], "MOR"))
+            result = value1 > value2;
+        else if (StrEqul(tokens[1], "MEQ"))
+            result = value1 >= value2;
+        
+        if (result)
+            currentLine = findLabelLine(label);
+        
     }
 }
 
@@ -274,7 +293,9 @@ int ValueParser(char *token)
             return -1;
     }
     else
+    {
         return atoi(token);
+    }
 }
 
 // Enable In-Programm debuging, if the 'DEBUG_LOG' is True(1)
