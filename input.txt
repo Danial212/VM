@@ -1,18 +1,27 @@
-LOAD R1 2800
+LOAD R1 2
 LOAD R2 1
 
-LABEL LB1
+$ lins that start with '$' won't be compiled, like a commnet line
 
-ADD R1 R2
+$ getting input with the gien size 14, and save into the address in RAM at #100
+
+INP 14 #100
+
+LABEL loop
+SUB R1 R2
 OUT R1
+$ like a 7 time loop
+IF 1 <= R1 GOTO loop
 
-IF MEQ R1 R2 GOTO LB1
+$ printign the string from the location #100
 
-# the conditions we can use in our if block
-# EQL
-# NEQ
-# LES
-# LEQ
-# MOR
-# MEQ
-# teset here
+OUT -s #100
+
+$ the NEW conditions we can use in our 'if' blocks
+$ OLD  vs  NEW
+$ EQL  <->  ==
+$ NEQ  <->  !=
+$ LES  <->  <
+$ LEQ  <->  <=
+$ MOR  <->  >
+$ MEQ  <->  >=

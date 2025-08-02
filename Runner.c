@@ -1,19 +1,20 @@
+#include "CommonTools.h"
+#include "Hardware.h"
+#include "Structure.h"
+#include "interpreter.h"
+#include "GlobalVariables.h"
 #include <string.h>
-#include "interpreter.c"
-#include "Structure.c"
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 int InputReciver(char **, int);
-int StrEqul(char *, char *);
 void RunPussembler(char **);
 int ValueParser(char *token);
-void DebugLog(const char *__format, ...);
 int *GetTargetStoragePointer(char *token);
 void LabelListing();
-void Labels_manitoring();
 void FileReading();
-int findLabelLine(char *labelName);
 
-const int DEBUG_LOG = 1;
 static int currentLine = 0;
 
 typedef struct
@@ -21,16 +22,8 @@ typedef struct
     char **tokens;
 } CommandStrcuture;
 
-typedef struct
-{
-    char *labelName;
-    int labelLine;
-} Label;
-
 static CommandStrcuture lines[100];
 static int linesCount = 0;
-static Label labelsList[10];
-static int labelsCount = 0;
 
 FILE *file;
 
@@ -43,9 +36,14 @@ int main(int argc, char const *argv[])
     for (currentLine = 0; currentLine < linesCount; currentLine++)
         RunPussembler(lines[currentLine].tokens);
 
+    printf("\n");
     RegistersManitoring();
-    Stack_Manitoring();
-    Labels_manitoring();
+    printf("\n");
+    StackManitoring();
+    printf("\n");
+    LabelsManitoring();
+    printf("\n");
+    RamManitoring();
 }
 
 //  Open and read all the codes inside the target file
@@ -82,8 +80,8 @@ int InputReciver(char **buffer, int count)
     char c;
     while ((c = fgetc(file)) != '\n' && c != EOF)
     {
-        //  ognore and pass the lines that contain Comment in the code
-        if (c == '#')
+        //  Ignore and pass the lines that contain Comment in the code
+        if (c == '$')
             ignoreLine = 1;
         if (ignoreLine)
             continue;
@@ -113,12 +111,6 @@ int InputReciver(char **buffer, int count)
     return 0;
 }
 
-//  Check if 2 string are equal, case in-setsitive
-int StrEqul(char *str1, char *str2)
-{
-    return stricmp(str1, str2) == 0;
-}
-
 //  List all the label, sith their name and line number, for later jumping actions
 void LabelListing()
 {
@@ -138,11 +130,7 @@ void LabelListing()
 
 void RunPussembler(char **tokens)
 {
-    if (StrEqul(tokens[0], "//"))
-    {
-        //  DO NOTHING
-    }
-    else if (StrEqul(tokens[0], "LOAD"))
+    if (StrEqul(tokens[0], "LOAD"))
     {
         //  The data we want to write into RAM/Register
         //  It could be from any source, like RAM, Register or directly thorugh user input
@@ -210,7 +198,14 @@ void RunPussembler(char **tokens)
     // Outputs the value of a Register or a RAM cell
     else if (StrEqul(tokens[0], "OUT"))
     {
-        printf("%d\n", ValueParser(tokens[1]));
+        if (StrEqul(tokens[1], "-s"))
+        {
+            int stringLocation = atoi(tokens[2] + 1);
+            printf("Printing String from >%d<\n", stringLocation);
+            printf(">>%s\n", ReadStringFromRam(stringLocation));
+        }
+        else
+            printf("%d\n", ValueParser(tokens[1]));
     }
 
     else if (StrEqul(tokens[0], "PUSH"))
@@ -228,38 +223,50 @@ void RunPussembler(char **tokens)
     {
         currentLine = findLabelLine(tokens[1]);
     }
-    else if (StrEqul(tokens[0], "Label"))
-    {
-        //  DO NOTHING
-    }
     else if (StrEqul(tokens[0], "IF"))
     {
         int result = 0;
-        
+
         //  Tow value we want to compare toghater
-        int value1 = ValueParser(tokens[2]);
+        int value1 = ValueParser(tokens[1]);
         int value2 = ValueParser(tokens[3]);
 
         //  The target label, we want to jump if the condition was true
+
+        if (!StrEqul(tokens[4], "GOTO"))
+            return;
+
         char *label = tokens[5];
 
-
-        if (StrEqul(tokens[1], "EQL"))
+        if (StrEqul(tokens[2], "=="))
             result = value1 == value2;
-        else if (StrEqul(tokens[1], "NEQ"))
+        else if (StrEqul(tokens[2], "!="))
             result = value1 != value2;
-        else if (StrEqul(tokens[1], "LES"))
+        else if (StrEqul(tokens[2], "<"))
             result = value1 < value2;
-        else if (StrEqul(tokens[1], "LEQ"))
+        else if (StrEqul(tokens[2], "<="))
             result = value1 <= value2;
-        else if (StrEqul(tokens[1], "MOR"))
+        else if (StrEqul(tokens[2], ">"))
             result = value1 > value2;
-        else if (StrEqul(tokens[1], "MEQ"))
+        else if (StrEqul(tokens[2], ">="))
             result = value1 >= value2;
-        
+
         if (result)
             currentLine = findLabelLine(label);
-        
+    }
+    else if (StrEqul(tokens[0], "INP"))
+    {
+        //  Write the input string into the RAM
+        if (tokens[2][0] == '#')
+        {
+            int inputLength = atoi(tokens[1]);
+            int ramlocation = atoi(tokens[2] + 1);
+
+            char *string = malloc(inputLength * sizeof(char));
+            printf("\n> ");
+            fgets(string, inputLength, stdin);
+            WriteStringIntoRam(ramlocation, string);
+        }
     }
 }
 
@@ -283,26 +290,12 @@ int ValueParser(char *token)
     }
     else if (StrEqul(token, "POP"))
     {
-        if (!Stack_IsEmpty())
-        {
-            int data = Stack_Pop();
-            return data;
-        }
-        else
-            /// STACK EMPTY ERROR
-            return -1;
+        return Stack_Pop();
     }
     else
     {
         return atoi(token);
     }
-}
-
-// Enable In-Programm debuging, if the 'DEBUG_LOG' is True(1)
-void DebugLog(const char *__format, ...)
-{
-    if (DEBUG_LOG)
-        printf(__format);
 }
 
 //  Get Register/RAM pointer
@@ -321,24 +314,4 @@ int *GetTargetStoragePointer(char *token)
         return ram_poiner;
     }
     return NULL;
-}
-
-//  Print all the labels in our code
-void Labels_manitoring()
-{
-    for (size_t i = 0; i < labelsCount; i++)
-    {
-        printf("Label <%s> at the line #%d", labelsList[i].labelName, labelsList[i].labelLine + 1);
-    }
-}
-
-//  Find the line number of the given label
-int findLabelLine(char *labelName)
-{
-    for (size_t i = 0; i <= labelsCount; i++)
-        if (StrEqul(labelName, labelsList[i].labelName))
-            return labelsList[i].labelLine;
-
-    DebugLog("The target label <%s> cound't be found", labelName);
-    return -1;
 }

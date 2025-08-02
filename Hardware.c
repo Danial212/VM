@@ -1,10 +1,9 @@
-#include "stdio.h"
-#include <math.h>
-#include "stdint.h"
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include "GlobalVaribles.h"
-
-#define RAM_EMPTY_DATA -1
+#include "Hardware.h"
+#include "GlobalVariables.h"
+#include <math.h>
 
 const int REGISTER_COUNT = 4;
 const int RAM_SPACE = RAM_SIZE;
@@ -12,14 +11,7 @@ const int RAM_SPACE = RAM_SIZE;
 //  This simple structure, is a simple Memoty of a computer
 //  Containing 4 Register and 1 RAM
 //  Board structure (already defined in your file)
-typedef struct
-{
-    int *R1;
-    int *R2;
-    int *R3;
-    int *R4;
-    int ram[RAM_SIZE];
-} Board;
+
 
 // Initialize RAM with empty values
 Board hardwareBoard = {
@@ -33,20 +25,6 @@ Board hardwareBoard = {
 // Global variable
 Board hardwareBoard;
 
-// Function declarations
-void InitializeHardWare(void);
-void RamCleaning(void);
-void WriteIntoRam(int data, int location);
-int ReadFromRAM(int location);
-void WriteIntoRegister(int registerNumber, int data);
-int ReadDataFromRegister(int registerNumber);
-int *ReadRegisterPointer(int registerNumber);
-void MoveFrom_R_to_RAM(int _register_Number, int RAM_location);
-void MoveFrom_RAM_to_R(int _register_Number, int RAM_location);
-int IsRamAvalible(int location);
-int *GetRamPointer(int);
-int int_length(int num);
-void RegistersManitoring();
 
 /// @brief Initializing the basic component of the VM [like Cleaning RAM, Allocating Register, etc...]
 /// @warning This function has to get executed before any other functions
@@ -58,7 +36,7 @@ void InitializeHardWare()
     hardwareBoard.R4 = malloc(sizeof(int));
     if (!hardwareBoard.R1 || !hardwareBoard.R2 || !hardwareBoard.R3 || !hardwareBoard.R4)
     {
-        fprintf(stderr, "Memory allocation failed!");
+        fprintf(stderr, "E12: Registers Allocation Failed!");
         exit(EXIT_FAILURE);
     }
     *hardwareBoard.R1 = 11;
@@ -144,14 +122,6 @@ int IsRamAvalible(int location)
     return (ReadFromRAM(location) == RAM_EMPTY_DATA);
 }
 
-//  The length if a digit
-int int_length(int num)
-{
-    if (num == 0)
-        return 1;
-    return (floor(log10(num)) + 1);
-}
-
 //  Printing the states of all register at the time
 void RegistersManitoring()
 {
@@ -181,4 +151,29 @@ void RegistersManitoring()
     printf("|\n");
 
     printf("------------------------------------------------------------\n");
+}
+
+void RamManitoring()
+{
+    int printerCount = 0;
+    printf("\n########################### RAM ############################\n");
+
+    for (size_t i = 0; i < 1024; i++)
+    {
+        if (hardwareBoard.ram[i] != RAM_EMPTY_DATA || 1)
+        {
+            printerCount++;
+            int len = int_length(hardwareBoard.ram[i]) + int_length(i);
+            if (hardwareBoard.ram[i] < 0)
+                len++;
+            printf("%d]:%d", i, hardwareBoard.ram[i]);
+            for (size_t i = 0; i < 15 - len - 2; i++)
+                printf(" ");
+            printf("|");
+            if (printerCount % 10 == 0)
+                printf("\n");
+        }
+    }
+
+    printf("\n------------------------------------------------------------\n");
 }

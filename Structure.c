@@ -1,6 +1,9 @@
+#include "Structure.h"
+#include "Hardware.h"
+#include "CommonTools.h" 
+#include "GlobalVariables.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "GlobalVaribles.h"
 
 //////////////////////////////////////////////////////////////////
 //                  STACK STRUCTURE OPERATIONS
@@ -8,16 +11,11 @@
 
 //  Saving The Stack into the Ram, starts at the 'startLocation' location of the RAM
 //  and Ends at the 'startLocation' + 'copacity'
-int Stack_length();
-int Stack_IsEmpty();
-int Stack_hasSpace();
-int Stack_Push(int value);
-int Stack_Pop();
-void Stack_Manitoring();
 
 const int copacity = 24;
 const int startLocation = 1000;
-static int stackIndex = 0;
+
+int stackIndex = 0;
 
 int Stack_Initialize()
 {
@@ -72,7 +70,7 @@ int Stack_length()
 }
 
 //  Printing the states of the stack
-void Stack_Manitoring()
+void StackManitoring()
 {
     printf("########################## STACK ###########################\n|");
 
@@ -88,11 +86,36 @@ void Stack_Manitoring()
         for (size_t j = 0; j < L2; j++)
             printf(" ");
 
-        if ((i+1) % 10 == 0)
+        if ((i + 1) % 10 == 0)
             printf("\n");
 
         printf("|");
     }
 
     printf("\n------------------------------------------------------------\n");
+}
+
+//////////////////////////////////////////////////////////////////
+//                  LABELS STRUCTURE OPERATIONS
+//////////////////////////////////////////////////////////////////
+
+Label labelsList[10];
+int labelsCount = 0;
+
+//  Find the line number of the given label
+int findLabelLine(char *labelName)
+{
+    for (size_t i = 0; i <= labelsCount; i++)
+        if (StrEqul(labelName, labelsList[i].labelName))
+            return labelsList[i].labelLine;
+
+    DebugLog("The target label <%s> cound't be found", labelName);
+    return -1;
+}
+
+//  Print all the labels in our code
+void LabelsManitoring()
+{
+    for (size_t i = 0; i < labelsCount; i++)
+        printf("Label <%s> at the line #%d", labelsList[i].labelName, labelsList[i].labelLine + 1);
 }

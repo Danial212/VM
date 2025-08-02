@@ -1,6 +1,8 @@
+#include "interpreter.h"
+#include "Hardware.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "Hardware.c"
+#include <string.h>
 
 // =============================================
 //              Register Operations
@@ -71,6 +73,28 @@ void ModuloRegisters(int registerA, int registerB)
 void LoadImmediateIntoRAM(int ramLocation, int value)
 {
     WriteIntoRam(ramLocation, value);
+}
+
+//  Writing string, starts at the given address, and ends with symbol '\0'
+void WriteStringIntoRam(int address, char *str)
+{
+    int len = strlen(str);
+    for (size_t i = 0; i < len; i++)
+    {
+        WriteIntoRam(address + i, str[i]);
+    }
+    // Ending symbol for a string in Memory
+    WriteIntoRam(address + len, '\0');
+}
+
+char *ReadStringFromRam(int address)
+{
+    char *strP = (char *)hardwareBoard.ram + address;
+
+    int size = -1;
+    while (*(strP + ++size) != '\0')
+        strP[size] = ReadFromRAM(address + size);
+    return strP;
 }
 
 // =============================================
