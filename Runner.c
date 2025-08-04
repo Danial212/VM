@@ -251,6 +251,11 @@ void RunPussembler(char **tokens)
         else if (StrEqul(tokens[2], ">="))
             result = value1 >= value2;
 
+        else{
+            printf("⚠️ Warning: Command or condition didn't match any known case!\n");
+            return;
+        }
+
         if (result)
             currentLine = findLabelLine(label);
     }
