@@ -252,7 +252,7 @@ void RunPussembler(char **tokens)
             result = value1 >= value2;
 
         else{
-            printf(" Warning: Command or condition didn't match any known case!\n");
+            printf("Warning: Command or condition didn't match any known case!\n");
             return;
         }
 
