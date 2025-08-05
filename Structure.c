@@ -2,6 +2,7 @@
 #include "Hardware.h"
 #include "CommonTools.h" 
 #include "GlobalVariables.h"
+#include "Runner.c"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -93,6 +94,56 @@ void StackManitoring()
     }
 
     printf("\n------------------------------------------------------------\n");
+}
+
+//////////////////////////////////////////////////////////////////
+//                  RETURN STACK OPERATIONS
+//////////////////////////////////////////////////////////////////
+
+int returnStack[100];
+int returnStackIndex = 0;
+
+void PushReturnAddress(int address)
+{
+    returnStack[returnStackIndex++] = address;
+}
+
+int PopReturnAddress()
+{
+    if (returnStackIndex == 0) return -1;
+    return returnStack[--returnStackIndex];
+}
+
+
+///////////////////////////////////////////////////////////
+//                 FUNCTION STRUCTURE
+///////////////////////////////////////////////////////////
+Function functionList[20];
+int functionCount = 0;
+
+int findFunctionLine(char *funcName)
+{
+    for (int i = 0; i < functionCount; i++)
+    {
+        if (StrEqul(funcName, functionList[i].funcName))
+            return functionList[i].startLine;
+    }
+
+    DebugLog("Function %s not found", funcName);
+    return -1;
+}
+
+void FunctionListing()
+{
+    for (int i = 0; i < linesCount; i++)
+    {
+        if (StrEqul(lines[i].tokens[0], "FUNC"))
+        {
+            functionList[functionCount].funcName = lines[i].tokens[1];
+            functionList[functionCount].startLine = i;
+            functionCount++;
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////
