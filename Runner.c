@@ -126,8 +126,6 @@ void LabelListing()
 }
 
 //  Run the codes command line-by-line, [not sure about the Pussembler Spell (:]
-//  Run the codes, [not sure about the Pussembler Spell (:] {that's correct dude :))}
-
 void RunPussembler(char **tokens)
 {
     if (StrEqul(tokens[0], "LOAD"))
@@ -198,13 +196,14 @@ void RunPussembler(char **tokens)
     // Outputs the value of a Register or a RAM cell
     else if (StrEqul(tokens[0], "OUT"))
     {
+        // Printing string from RAM
         if (StrEqul(tokens[1], "-s"))
         {
             int stringLocation = atoi(tokens[2] + 1);
             printf("Printing String from >%d<\n", stringLocation);
             printf(">>%s\n", ReadStringFromRam(stringLocation));
         }
-        else
+        else // Printing non-string value from Registers/RAM
             printf("%d\n", ValueParser(tokens[1]));
     }
 
@@ -262,9 +261,18 @@ void RunPussembler(char **tokens)
             int inputLength = atoi(tokens[1]);
             int ramlocation = atoi(tokens[2] + 1);
 
-            char *string = malloc(inputLength * sizeof(char));
-            printf("\n> ");
-            fgets(string, inputLength, stdin);
+            //  Includeing the '\0' symbol to save at the end
+            char *string = malloc((1 + inputLength) * sizeof(char));
+
+            printf("\n>");
+
+            //  Includeing the '\n' too
+            fgets(string, inputLength + 1, stdin);
+
+            //  Remove the new-line('\n') symbol from the end of the input
+            if (string[strlen(string) - 1] == '\n')
+                string[strlen(string) - 1] = '\0';
+
             WriteStringIntoRam(ramlocation, string);
         }
     }

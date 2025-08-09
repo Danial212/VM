@@ -109,7 +109,7 @@ int findLabelLine(char *labelName)
         if (StrEqul(labelName, labelsList[i].labelName))
             return labelsList[i].labelLine;
 
-    DebugLog("The target label <%s> cound't be found", labelName);
+    DebugLog("The target label <%s> cound't be found\n", labelName);
     return -1;
 }
 

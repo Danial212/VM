@@ -160,17 +160,17 @@ void RamManitoring()
 
     for (size_t i = 0; i < 1024; i++)
     {
-        if (hardwareBoard.ram[i] != RAM_EMPTY_DATA || 1)
+        if (hardwareBoard.ram[i] != RAM_EMPTY_DATA)
         {
             printerCount++;
             int len = int_length(hardwareBoard.ram[i]) + int_length(i);
             if (hardwareBoard.ram[i] < 0)
                 len++;
             printf("%d]:%d", i, hardwareBoard.ram[i]);
-            for (size_t i = 0; i < 15 - len - 2; i++)
+            for (size_t i = 0; i < 24 - len - 2; i++)
                 printf(" ");
             printf("|");
-            if (printerCount % 10 == 0)
+            if (printerCount % 3 == 0)
                 printf("\n");
         }
     }
