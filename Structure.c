@@ -2,7 +2,7 @@
 #include "Hardware.h"
 #include "CommonTools.h" 
 #include "GlobalVariables.h"
-#include "Runner.c"
+#include "Runner.h"
 #include <stdio.h>
 #include <stdlib.h>
 

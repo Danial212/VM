@@ -3,29 +3,17 @@
 #include "Structure.h"
 #include "interpreter.h"
 #include "GlobalVariables.h"
+#include "Runner.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 
-int InputReciver(char **, int);
-void RunPussembler(char **);
-int ValueParser(char *token);
-int *GetTargetStoragePointer(char *token);
-void LabelListing();
-void FileReading();
-
 static int currentLine = 0;
-
-typedef struct
-{
-    char **tokens;
-} CommandStrcuture;
-
-extern CommandStrcuture lines[100];
-extern int linesCount = 0;
-
 FILE *file;
+
+CommandStrcuture lines[100];
+int linesCount = 0;
 
 int main(int argc, char const *argv[])
 {
@@ -231,16 +219,15 @@ void RunPussembler(char **tokens)
     {
         int result = 0;
 
-        //  Tow value we want to compare toghater
+        //  Tow int value we want to compare toghater
         int value1 = ValueParser(tokens[1]);
         int value2 = ValueParser(tokens[3]);
 
         //  The target label, we want to jump if the condition was true
-
+        char *label = tokens[5];
+        
         if (!StrEqul(tokens[4], "GOTO"))
             return;
-
-        char *label = tokens[5];
 
         if (StrEqul(tokens[2], "=="))
             result = value1 == value2;
@@ -254,7 +241,6 @@ void RunPussembler(char **tokens)
             result = value1 > value2;
         else if (StrEqul(tokens[2], ">="))
             result = value1 >= value2;
-
         else{
             printf("Warning: Command or condition didn't match any known case!\n");
             return;
