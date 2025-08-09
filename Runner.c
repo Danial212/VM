@@ -126,6 +126,7 @@ void LabelListing()
 }
 
 //  Run the codes command line-by-line, [not sure about the Pussembler Spell (:]
+//  Run the codes, [not sure about the Pussembler Spell (:] {that's correct dude :))}
 void RunPussembler(char **tokens)
 {
     if (StrEqul(tokens[0], "LOAD"))
