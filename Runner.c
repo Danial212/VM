@@ -22,8 +22,8 @@ typedef struct
     char **tokens;
 } CommandStrcuture;
 
-static CommandStrcuture lines[100];
-static int linesCount = 0;
+extern CommandStrcuture lines[100];
+extern int linesCount = 0;
 
 FILE *file;
 
@@ -32,6 +32,7 @@ int main(int argc, char const *argv[])
     InitializeHardWare();
     FileReading();
     LabelListing();
+    FunctionListing();
 
     for (currentLine = 0; currentLine < linesCount; currentLine++)
         RunPussembler(lines[currentLine].tokens);
@@ -219,10 +220,13 @@ void RunPussembler(char **tokens)
         int *targetStorage = GetTargetStoragePointer(tokens[1]);
         *targetStorage = Stack_Pop();
     }
+
     else if (StrEqul(tokens[0], "GOTO"))
     {
         currentLine = findLabelLine(tokens[1]);
     }
+
+    //  'if' programs
     else if (StrEqul(tokens[0], "IF"))
     {
         int result = 0;
@@ -251,9 +255,15 @@ void RunPussembler(char **tokens)
         else if (StrEqul(tokens[2], ">="))
             result = value1 >= value2;
 
+        else{
+            printf("Warning: Command or condition didn't match any known case!\n");
+            return;
+        }
+
         if (result)
             currentLine = findLabelLine(label);
     }
+
     else if (StrEqul(tokens[0], "INP"))
     {
         //  Write the input string into the RAM
@@ -276,6 +286,53 @@ void RunPussembler(char **tokens)
 
             WriteStringIntoRam(ramlocation, string);
         }
+    }
+
+    // 'FUNC' programs
+    else if (StrEqul(tokens[0], "CALL"))
+    {
+        int returnAddress = currentLine; // Store the address of the next line after CALL to return to it later
+        if (!Stack_Push(returnAddress))
+        {
+            printf("Error: Stack overflow while saving return address!\n");
+            return;
+        }
+
+        for (int i = 0; i < functionCount; i++)
+        {
+            if (StrEqul(functionList[i].funcName, tokens[1]))
+            {
+                currentLine = functionList[i].startLine;
+                return;
+            }
+        }
+
+        printf("Error: Function '%s' not found!\n", tokens[1]);
+    }
+
+    else if (StrEqul(tokens[0], "RETURN"))
+    {
+        if (Stack_IsEmpty())
+        {
+            printf("Error: RETURN used without a CALL!\n");
+            return;
+        }
+
+        if (tokens[1]) // Check if RETURN has a value
+        {
+            int returnValue = ValueParser(tokens[1]);
+            Stack_Push(returnValue); // Push the return value onto the stack
+        }
+
+        int returnLine = Stack_Pop();
+        currentLine = returnLine;
+    }
+
+    else if (StrEqul(tokens[0], "FUNC"))
+    {
+        // Skip all lines until we reach ENDFUNC
+        while (!StrEqul(lines[currentLine].tokens[0], "ENDFUNC"))
+            currentLine++;
     }
 }
 

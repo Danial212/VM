@@ -14,6 +14,30 @@ void StackManitoring();
 extern const int copacity;
 extern const int startLocation;
 
+
+//////////////////////////////////////////////////////////////////
+//                  RETURN STACK OPERATIONS
+//////////////////////////////////////////////////////////////////
+void PushReturnAddress(int address);
+int PopReturnAddress();
+
+
+///////////////////////////////////////////////////////////
+//                 FUNCTION STRUCTURE
+///////////////////////////////////////////////////////////
+typedef struct {
+    char *funcName;
+    int startLine;
+} Function;
+
+extern Function functionList[20];
+extern int functionCount;
+
+int findFunctionLine(char *funcName); // Returns the line number where the specified function starts
+void FunctionsManitoring(); // Prints the list of all recorded functions with their line numbers
+void FunctionListing(); // Scans the code lines to find and record all function names and their starting line numbers for later use
+
+
 //////////////////////////////////////////////////////////////////
 //                  LABELS STRUCTURE OPERATIONS
 //////////////////////////////////////////////////////////////////
