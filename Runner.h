@@ -5,7 +5,6 @@ int InputReciver(char **, int);
 void RunPussembler(char **);
 int ValueParser(char *token);
 int *GetTargetStoragePointer(char *token);
-void LabelListing();
 void FileReading();
 
 typedef struct

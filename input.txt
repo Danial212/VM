@@ -1,21 +1,41 @@
-LOAD R1 2
-LOAD R2 1
+$ LOAD R3 33
+$ LOAD R4 44
+
+.Getting_Input>Enter Your Fucking Input Bro at max 20 chars:
+.Thank_message>Thanks a milion budy (:
+.you_message>Your Entered Message:
+
+
+$ OUT -s .Getting_Input
+$ OUT -s .Thank_message
+
+FUNC INPUT
+OUT -s .Getting_Input
+INP 20 #100
+OUT -s .Thank_message
+RET
+
+
+CALL INPUT
+OUT -s .you_message
+OUT -s #100
 
 $ lins that start with '$' won't be compiled, like a commnet line
 
 $ getting input with the gien size 14, and save into the address in RAM at #100
 
-INP 14 #100
+$ INP 14 #100
 
-LABEL loop
-SUB R1 R2
-OUT R1
-$ like a 7 time loop
-IF 1 <= R1 GOTO loop
+$ LABEL loop
+$ SUB R1 R2
+$ OUT R1
+$ $ like a 7 time loop
+$ IF 1 <= R1 GOTO loop
 
 $ printign the string from the location #100
 
-OUT -s #100
+$ OUT -s #100
+$ OUT -s .STR
 
 $ the NEW conditions we can use in our 'if' blocks
 $ OLD  vs  NEW
@@ -25,3 +45,4 @@ $ LES  <->  <
 $ LEQ  <->  <=
 $ MOR  <->  >
 $ MEQ  <->  >=
+

@@ -1,9 +1,12 @@
 #ifndef Structure_H // Unique name for this header
 #define Structure_H
 
+int Init_Data_Structures();
+
 //////////////////////////////////////////////////////////////////
 //                  STACK STRUCTURE OPERATIONS
 //////////////////////////////////////////////////////////////////
+static int Stack_Initialize();
 int Stack_length();
 int Stack_IsEmpty();
 int Stack_hasSpace();
@@ -14,18 +17,18 @@ void StackManitoring();
 extern const int copacity;
 extern const int startLocation;
 
-
 //////////////////////////////////////////////////////////////////
 //                  RETURN STACK OPERATIONS
 //////////////////////////////////////////////////////////////////
-void PushReturnAddress(int address);
-int PopReturnAddress();
-
+int Push_ReturnAddress(int address);
+int Pop_ReturnAddress();
+int Return_Stack_IsEmpty();
 
 ///////////////////////////////////////////////////////////
 //                 FUNCTION STRUCTURE
 ///////////////////////////////////////////////////////////
-typedef struct {
+typedef struct
+{
     char *funcName;
     int startLine;
 } Function;
@@ -34,13 +37,13 @@ extern Function functionList[20];
 extern int functionCount;
 
 int findFunctionLine(char *funcName); // Returns the line number where the specified function starts
-void FunctionsManitoring(); // Prints the list of all recorded functions with their line numbers
-void FunctionListing(); // Scans the code lines to find and record all function names and their starting line numbers for later use
-
+void FunctionsManitoring();           // Prints the list of all recorded functions with their line numbers
+void FunctionListing();               // Scans the code lines to find and record all function names and their starting line numbers for later use
 
 //////////////////////////////////////////////////////////////////
 //                  LABELS STRUCTURE OPERATIONS
 //////////////////////////////////////////////////////////////////
+void LabelListing();
 int findLabelLine(char *labelName);
 void LabelsManitoring();
 
@@ -52,5 +55,21 @@ typedef struct
 
 extern Label labelsList[10];
 extern int labelsCount;
+
+//////////////////////////////////////////////////////////////////
+//                  CONSTANT STRING STRUCTURE
+//////////////////////////////////////////////////////////////////
+typedef struct
+{
+    char *name;
+    char *string;
+} ConstString;
+
+extern ConstString stringList[100];
+extern int stringListCount;
+
+void saveConstString(char *name, char *str);
+void savedStringManitoring();
+char *get_saved_string(char *name);
 
 #endif

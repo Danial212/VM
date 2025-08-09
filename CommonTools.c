@@ -18,6 +18,12 @@ int StrEqul(char *str1, char *str2)
     return stricmp(str1, str2) == 0;
 }
 
+//  Check if 2 string are equal, with the given length, and ignore the rest, case in-setsitive,
+int StrEqul_with_length(char *str1, char *str2, int length)
+{
+    return strnicmp(str1, str2, length) == 0;
+}
+
 //  The length if a digit
 int int_length(int num)
 {

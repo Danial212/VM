@@ -4,6 +4,7 @@
 // Function declarations
 void DebugLog(const char *__format, ...);
 int StrEqul(char *, char *);
+int StrEqul_with_length(char *str1, char *str2, int length);
 int int_length(int num);
 
 #endif

@@ -1,10 +1,16 @@
 #include "Structure.h"
 #include "Hardware.h"
-#include "CommonTools.h" 
+#include "CommonTools.h"
 #include "GlobalVariables.h"
 #include "Runner.h"
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
+
+int Init_Data_Structures()
+{
+    Stack_Initialize();
+}
 
 //////////////////////////////////////////////////////////////////
 //                  STACK STRUCTURE OPERATIONS
@@ -18,7 +24,7 @@ const int startLocation = 1000;
 
 int stackIndex = 0;
 
-int Stack_Initialize()
+static int Stack_Initialize()
 {
     //  'copacity' + 'startLocation' must be less than RAM's size
     if (startLocation + copacity > RAM_SIZE)
@@ -103,17 +109,24 @@ void StackManitoring()
 int returnStack[100];
 int returnStackIndex = 0;
 
-void PushReturnAddress(int address)
+int Push_ReturnAddress(int address)
 {
+    if (returnStackIndex == 100)
+        return 0;
     returnStack[returnStackIndex++] = address;
+    return 1;
 }
 
-int PopReturnAddress()
+int Return_Stack_IsEmpty()
 {
-    if (returnStackIndex == 0) return -1;
+    return (returnStackIndex == 0);
+}
+
+int Pop_ReturnAddress()
+{
+    // if (returnStackIndex == 0) return -1;
     return returnStack[--returnStackIndex];
 }
-
 
 ///////////////////////////////////////////////////////////
 //                 FUNCTION STRUCTURE
@@ -153,6 +166,20 @@ void FunctionListing()
 Label labelsList[10];
 int labelsCount = 0;
 
+//  List all the label, sith their name and line number, for later jumping actions
+void LabelListing()
+{
+    for (size_t i = 0; i < linesCount; i++)
+    {
+        if (StrEqul(lines[i].tokens[0], "LABEL"))
+        {
+            labelsList[labelsCount].labelLine = i;
+            labelsList[labelsCount].labelName = lines[i].tokens[1];
+            labelsCount++;
+        }
+    }
+}
+
 //  Find the line number of the given label
 int findLabelLine(char *labelName)
 {
@@ -169,4 +196,36 @@ void LabelsManitoring()
 {
     for (size_t i = 0; i < labelsCount; i++)
         printf("Label <%s> at the line #%d", labelsList[i].labelName, labelsList[i].labelLine + 1);
+}
+
+//////////////////////////////////////////////////////////////////
+//                  CONSTANT STRING STRUCTURE
+//////////////////////////////////////////////////////////////////
+
+ConstString stringList[100];
+int stringListCount = 0;
+
+void saveConstString(char *name, char *str)
+{
+    stringList[stringListCount].name = malloc(strlen(name));
+    stringList[stringListCount].name = name;
+    stringList[stringListCount].string = malloc(strlen(str));
+    stringList[stringListCount].string = str;
+    
+    stringListCount++;
+}
+
+void savedStringManitoring()
+{
+    printf("#################### String Varibles #######################\n");
+    for (size_t i = 0; i < stringListCount; i++)
+        printf("%d)%s--> %s\n", i + 1, stringList[i].name, stringList[i].string);
+}
+
+char *get_saved_string(char *name)
+{
+    for (size_t i = 0; i < stringListCount; i++)
+        if (StrEqul(name, stringList[i].name))
+            return stringList[i].string;
+    return NULL;
 }

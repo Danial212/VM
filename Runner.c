@@ -21,10 +21,13 @@ int main(int argc, char const *argv[])
     FileReading();
     LabelListing();
     FunctionListing();
+    Init_Data_Structures();
 
     for (currentLine = 0; currentLine < linesCount; currentLine++)
         RunPussembler(lines[currentLine].tokens);
 
+    printf("\n");
+    savedStringManitoring();
     printf("\n");
     RegistersManitoring();
     printf("\n");
@@ -63,7 +66,14 @@ int InputReciver(char **buffer, int count)
     for (size_t i = 0; i < count; i++)
         buffer[i] = malloc(8);
 
+    //  Skip the line if it's a comment line with symbol '$'
     int ignoreLine = 0;
+
+    //  When we want to save constant data like strings
+    int savingVarible = 0, savingVarible_name = 0;
+    char *stringVar, *stringName;
+    int stringVarIndex = 0, stringNameIndex = 0;
+
     int charIndex = 0;
     int tokenIndex = 0;
     char c;
@@ -72,12 +82,37 @@ int InputReciver(char **buffer, int count)
         //  Ignore and pass the lines that contain Comment in the code
         if (c == '$')
             ignoreLine = 1;
+
         if (ignoreLine)
             continue;
 
+        if (!savingVarible && StrEqul_with_length(buffer[0], ".", 1))
+        {
+            savingVarible = 1;
+            stringVar = malloc(100 * sizeof(char));
+            savingVarible_name = 1;
+            stringName = malloc(64 * sizeof(char));
+        }
+
+        if (savingVarible)
+        {
+            if (savingVarible_name){
+                if(c == '>'){
+                    stringName[stringNameIndex++] = '\0';
+                    savingVarible_name = 0;
+                }
+                else
+                    stringName[stringNameIndex++] = c;
+            }
+            else
+                stringVar[stringVarIndex++] = c;
+
+            continue;
+        }
+
         //  Handle multi space input, and treat like it's just one space
-        //  So the command "LOAD   R2", is the same as "LOAD R2"
-        if (c == ' ')
+        //  So the command "LOAD   R2", is the same as "LOAD R2", unles we're saving a string
+        if (c == ' ' && !savingVarible)
         {
             buffer[tokenIndex++][charIndex] = '\0';
             while ((c = fgetc(file)) != '\n')
@@ -93,25 +128,18 @@ int InputReciver(char **buffer, int count)
     }
     buffer[tokenIndex][charIndex] = '\0';
 
+    if (savingVarible)
+    {
+        stringVar[stringVarIndex] = '\0';
+        buffer[0][0] = '\0';
+        saveConstString(stringName, stringVar);
+    }
+
     //  When we hit the end of the code, when we're reading the codes from a file
     if (c == EOF)
         return -1;
 
     return 0;
-}
-
-//  List all the label, sith their name and line number, for later jumping actions
-void LabelListing()
-{
-    for (size_t i = 0; i < linesCount; i++)
-    {
-        if (StrEqul(lines[i].tokens[0], "LABEL"))
-        {
-            labelsList[labelsCount].labelLine = i;
-            labelsList[labelsCount].labelName = lines[i].tokens[1];
-            labelsCount++;
-        }
-    }
 }
 
 //  Run the codes command line-by-line, [not sure about the Pussembler Spell (:]
@@ -186,12 +214,21 @@ void RunPussembler(char **tokens)
     // Outputs the value of a Register or a RAM cell
     else if (StrEqul(tokens[0], "OUT"))
     {
-        // Printing string from RAM
+        // Printing string from RAM or Saved strings
         if (StrEqul(tokens[1], "-s"))
         {
-            int stringLocation = atoi(tokens[2] + 1);
-            printf("Printing String from >%d<\n", stringLocation);
-            printf(">>%s\n", ReadStringFromRam(stringLocation));
+            //  Reading string from RAM starts with #
+            if (tokens[2][0] == '#')
+            {
+                int stringLocation = atoi(tokens[2] + 1);
+                printf(">>%s\n", ReadStringFromRam(stringLocation));
+            }
+            //  Reading string from RAM starts with .
+            else if (tokens[2][0] == '.')
+            {
+                char *stringVaribleName = tokens[2] + 1;
+                printf(">>%s\n", get_saved_string(stringVaribleName));
+            }
         }
         else // Printing non-string value from Registers/RAM
             printf("%d\n", ValueParser(tokens[1]));
@@ -223,12 +260,6 @@ void RunPussembler(char **tokens)
         int value1 = ValueParser(tokens[1]);
         int value2 = ValueParser(tokens[3]);
 
-        //  The target label, we want to jump if the condition was true
-        char *label = tokens[5];
-        
-        if (!StrEqul(tokens[4], "GOTO"))
-            return;
-
         if (StrEqul(tokens[2], "=="))
             result = value1 == value2;
         else if (StrEqul(tokens[2], "!="))
@@ -241,15 +272,22 @@ void RunPussembler(char **tokens)
             result = value1 > value2;
         else if (StrEqul(tokens[2], ">="))
             result = value1 >= value2;
-        else{
+        else
+        {
             printf("Warning: Command or condition didn't match any known case!\n");
             return;
         }
 
-        if (result)
-            currentLine = findLabelLine(label);
-    }
+        //  The target label/function, we want to jump if the condition was true
+        char *label = tokens[5];
 
+        if (!result)
+            return;
+        if (StrEqul(tokens[4], "GOTO"))
+            currentLine = findLabelLine(label);
+        else if (StrEqul(tokens[4], "CALL"))
+            currentLine = findFunctionLine(label);
+    }
     else if (StrEqul(tokens[0], "INP"))
     {
         //  Write the input string into the RAM
@@ -274,50 +312,35 @@ void RunPussembler(char **tokens)
         }
     }
 
-    // 'FUNC' programs
+    // Go to the funtion decelared using 'FUNC'
     else if (StrEqul(tokens[0], "CALL"))
     {
         int returnAddress = currentLine; // Store the address of the next line after CALL to return to it later
-        if (!Stack_Push(returnAddress))
+        if (!Push_ReturnAddress(returnAddress))
         {
             printf("Error: Stack overflow while saving return address!\n");
             return;
         }
 
-        for (int i = 0; i < functionCount; i++)
-        {
-            if (StrEqul(functionList[i].funcName, tokens[1]))
-            {
-                currentLine = functionList[i].startLine;
-                return;
-            }
-        }
-
-        printf("Error: Function '%s' not found!\n", tokens[1]);
+        currentLine = findFunctionLine(tokens[1]);
     }
 
-    else if (StrEqul(tokens[0], "RETURN"))
+    else if (StrEqul(tokens[0], "RET"))
     {
-        if (Stack_IsEmpty())
+        if (Return_Stack_IsEmpty())
         {
             printf("Error: RETURN used without a CALL!\n");
             return;
         }
 
-        if (tokens[1]) // Check if RETURN has a value
-        {
-            int returnValue = ValueParser(tokens[1]);
-            Stack_Push(returnValue); // Push the return value onto the stack
-        }
-
-        int returnLine = Stack_Pop();
+        int returnLine = Pop_ReturnAddress() + 1;
         currentLine = returnLine;
     }
 
     else if (StrEqul(tokens[0], "FUNC"))
     {
-        // Skip all lines until we reach ENDFUNC
-        while (!StrEqul(lines[currentLine].tokens[0], "ENDFUNC"))
+        // Skip all lines until we reach RET
+        while (!StrEqul(lines[currentLine].tokens[0], "RET"))
             currentLine++;
     }
 }
@@ -343,6 +366,13 @@ int ValueParser(char *token)
     else if (StrEqul(token, "POP"))
     {
         return Stack_Pop();
+    }
+    else if (token[0] == '[')
+    {
+        //  To be completed like this:
+        //  #[R2]   --> reading from RAM at the location of the secound register's number
+        //  #[#24]  --> reading from RAM at the location of the RAM's 24th number
+        //  #[#[R3]]--> ram location of ( ram's value at ( R3 value ) )
     }
     else
     {
