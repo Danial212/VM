@@ -109,6 +109,8 @@ void StackManitoring()
 int returnStack[100];
 int returnStackIndex = 0;
 
+/// @param address The current line you're calling a function
+/// @return 0 --> StackOverFlow, 1 --> Success FFucK @ilia212
 int Push_ReturnAddress(int address)
 {
     if (returnStackIndex == 100)
@@ -126,6 +128,32 @@ int Pop_ReturnAddress()
 {
     // if (returnStackIndex == 0) return -1;
     return returnStack[--returnStackIndex];
+}
+
+void ReturnStackManitoring()
+{
+
+    printf("####################### RETURN STACK #######################\n|");
+
+    for (size_t i = 0; i < returnStackIndex; i++)
+    {
+        int number = returnStack[i];
+        int spaceLangth = 5 - int_length(number);
+        int L1 = spaceLangth / 2;
+        int L2 = spaceLangth - L1;
+        for (size_t j = 0; j < L1; j++)
+            printf(" ");
+        printf("%d", number);
+        for (size_t j = 0; j < L2; j++)
+            printf(" ");
+
+        if ((i + 1) % 10 == 0)
+            printf("\n");
+
+        printf("|");
+    }
+
+    printf("\n------------------------------------------------------------\n");
 }
 
 ///////////////////////////////////////////////////////////
@@ -157,6 +185,15 @@ void FunctionListing()
             functionCount++;
         }
     }
+}
+
+void FunctionsManitoring()
+{
+    if (functionCount == 0)
+        printf("No function found in yor program\n");
+    else
+        for (size_t i = 0; i < functionCount; i++)
+            printf("%d) FUNC <%s> at line .%d\n", i + 1, functionList[i].funcName, functionList[i].startLine);
 }
 
 //////////////////////////////////////////////////////////////////
@@ -211,7 +248,7 @@ void saveConstString(char *name, char *str)
     stringList[stringListCount].name = name;
     stringList[stringListCount].string = malloc(strlen(str));
     stringList[stringListCount].string = str;
-    
+
     stringListCount++;
 }
 

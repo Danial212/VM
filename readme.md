@@ -1,6 +1,6 @@
-Command sysmbol      -->    '$'
-Accessing Register --->     R[register_address] --Example--> R2
-Accessing RAM    --->       #[location_address] --Example--> #850
+Command sysmbol     --->    $
+Accessing Register  --->    R[register_address] --Example--> R2
+Accessing RAM       --->    #[location_address] --Example--> #850
 
 keywords:
 Using 'LOAD', you load secound parameter's value into first addres
@@ -40,3 +40,18 @@ Using 'PUSH', we push a value into the stack
 Using 'POP', we pop the from stack, and save into target storage
     POP [Register/RAM]
     example: POP #325
+
+Using 'FUNC', we decelare a function, 
+WARNING: always close a function block with 'ENDF'
+    FUNC [funcrion_name]
+    example: FUNC compare
+
+Using 'ENDF', we finish a function block,
+    ENDF
+
+Using 'CALL', we call a funtion and jump into it's code block
+    CALL [funcrion_name]
+    example: CALL compare
+
+Using 'RET', we return back of a function, we're inside if that
+    RET

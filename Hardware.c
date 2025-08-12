@@ -5,45 +5,41 @@
 #include "GlobalVariables.h"
 #include <math.h>
 
-const int REGISTER_COUNT = 4;
+const int REGISTER_COUNT = 16;
 const int RAM_SPACE = RAM_SIZE;
 
 //  This simple structure, is a simple Memoty of a computer
 //  Containing 4 Register and 1 RAM
 //  Board structure (already defined in your file)
 
-
 // Initialize RAM with empty values
 Board hardwareBoard = {
-    .R1 = NULL,
-    .R2 = NULL,
-    .R3 = NULL,
-    .R4 = NULL,
+    .R[0] = 0,
+    .R[1] = 0,
+    .R[2] = 0,
+    .R[3] = 0,
+    .R[4] = 0,
+    .R[5] = 0,
+    .R[6] = 0,
+    .R[7] = 0,
+    .R[8] = 0,
+    .R[9] = 0,
+    .R[10] = 0,
+    .R[11] = 0,
+    .R[12] = 0,
+    .R[13] = 0,
+    .R[14] = 0,
+    .R[15] = 0,
     .ram = {RAM_EMPTY_DATA}, // Initializes all elements to -1
 };
 
 // Global variable
 Board hardwareBoard;
 
-
 /// @brief Initializing the basic component of the VM [like Cleaning RAM, Allocating Register, etc...]
 /// @warning This function has to get executed before any other functions
 void InitializeHardWare()
 {
-    hardwareBoard.R1 = malloc(sizeof(int));
-    hardwareBoard.R2 = malloc(sizeof(int));
-    hardwareBoard.R3 = malloc(sizeof(int));
-    hardwareBoard.R4 = malloc(sizeof(int));
-    if (!hardwareBoard.R1 || !hardwareBoard.R2 || !hardwareBoard.R3 || !hardwareBoard.R4)
-    {
-        fprintf(stderr, "E12: Registers Allocation Failed!");
-        exit(EXIT_FAILURE);
-    }
-    *hardwareBoard.R1 = 11;
-    *hardwareBoard.R2 = 12;
-    *hardwareBoard.R3 = 13;
-    *hardwareBoard.R4 = 14;
-
     RamCleaning();
 }
 
@@ -87,18 +83,12 @@ int ReadDataFromRegister(int registerNumber)
 //  Get register pointer
 int *ReadRegisterPointer(int registerNumber)
 {
-    switch (registerNumber)
+    if (registerNumber == 0 && registerNumber > REGISTER_COUNT)
     {
-    case 1:
-        return hardwareBoard.R1;
-    case 2:
-        return hardwareBoard.R2;
-    case 3:
-        return hardwareBoard.R3;
-    case 4:
-        return hardwareBoard.R4;
+        fwrite("Error in getting register[%d]", registerNumber - 1, 30, stderr);
+        return NULL;
     }
-    return NULL;
+    return &hardwareBoard.R[registerNumber - 1];
 }
 
 /// @brief Moves Data from Register into RAM (keeps the register the same it was)
@@ -126,29 +116,24 @@ int IsRamAvalible(int location)
 void RegistersManitoring()
 {
     printf("######################## Registers #########################\n");
-    int len = int_length(*hardwareBoard.R1);
-    printf("1: %d", *hardwareBoard.R1);
-    for (size_t i = 0; i < 15 - len - 4; i++)
-        printf(" ");
-    printf("|");
 
-    len = int_length(*hardwareBoard.R2);
-    printf("2: %d", *hardwareBoard.R2);
-    for (size_t i = 0; i < 15 - len - 4; i++)
-        printf(" ");
-    printf("|");
+    for (size_t i = 1; i <= REGISTER_COUNT; i++)
+    {
+        printf("|");
+        int indexLen = int_length(i);
 
-    len = int_length(*hardwareBoard.R3);
-    printf("3: %d", *hardwareBoard.R3);
-    for (size_t i = 0; i < 15 - len - 4; i++)
-        printf(" ");
-    printf("|");
+        printf("%d:", i);
+        for (size_t i = 0; i < 4 - indexLen; i++)
+            printf(" ");
 
-    len = int_length(*hardwareBoard.R4);
-    printf("4: %d", *hardwareBoard.R4);
-    for (size_t i = 0; i < 15 - len - 4; i++)
-        printf(" ");
-    printf("|\n");
+        int valueLen = int_length(hardwareBoard.R[i - 1]);
+        printf("%d", hardwareBoard.R[i - 1]);
+        for (size_t i = 0; i < 10 - valueLen; i++)
+            printf(" ");
+
+        if ((i) % 4 == 0)
+            printf("\n");
+    }
 
     printf("------------------------------------------------------------\n");
 }

@@ -1,30 +1,39 @@
-$ LOAD R3 33
-$ LOAD R4 44
-
-.Getting_Input>Enter Your Fucking Input Bro at max 20 chars:
-.Thank_message>Thanks a milion budy (:
+$ Decelering constant string
 .you_message>Your Entered Message:
+.Thank_message>Thanks for your message:
+.leftCircles> You got this round left: 
+.seperatorLine> ---------------------------------
 
 
-$ OUT -s .Getting_Input
-$ OUT -s .Thank_message
+LOAD R2 1
 
-FUNC INPUT
-OUT -s .Getting_Input
-INP 20 #100
-OUT -s .Thank_message
+FUNC nested
+
+SUB R11 R2
+OUT -s ..leftCircles
+OUT -s .seperatorLine
+OUT R11
+
+$ Recersive function
+IF R11 > 0 CALL nested
+
 RET
+ENDF
 
+LOAD R11 9
+CALL nested
 
-CALL INPUT
-OUT -s .you_message
-OUT -s #100
+$ CALL INPUT
+$ OUT -s .you_message
+$ OUT -s #100
 
 $ lins that start with '$' won't be compiled, like a commnet line
 
 $ getting input with the gien size 14, and save into the address in RAM at #100
 
 $ INP 14 #100
+$ INP #100
+$ INP R2
 
 $ LABEL loop
 $ SUB R1 R2
@@ -38,7 +47,7 @@ $ OUT -s #100
 $ OUT -s .STR
 
 $ the NEW conditions we can use in our 'if' blocks
-$ OLD  vs  NEW
+$ OLD  vs   NEW
 $ EQL  <->  ==
 $ NEQ  <->  !=
 $ LES  <->  <

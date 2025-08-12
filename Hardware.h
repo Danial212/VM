@@ -1,3 +1,8 @@
+#ifndef GLOBAL_VARIABLES_H
+#include "GlobalVariables.h"
+#endif
+
+
 #ifndef HARDWARE_H // Unique name for this Hardware.h
 #define HARDWARE_H
 
@@ -22,11 +27,8 @@ extern const int RAM_SPACE;
 
 typedef struct
 {
-    int *R1;
-    int *R2;
-    int *R3;
-    int *R4;
-    int ram[1024];
+    int R[16];
+    int ram[RAM_SIZE];
 } Board;
 
 extern Board hardwareBoard;
