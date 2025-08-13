@@ -32,3 +32,19 @@ int int_length(int num)
         return 1;
     return (floor(log10(num)) + 1);
 }
+
+// Slicing string from start point, to end point
+char *slice_string(char *str, int start_point, int endPoint)
+{
+    if(endPoint < 0)
+        endPoint += strlen(str);
+
+    size_t size = (endPoint - start_point);
+    char *sliced_string = malloc(sizeof(char) * size);
+
+    strncpy(sliced_string, str + start_point, size);
+
+    sliced_string[size] = '\0';
+
+    return sliced_string;
+}

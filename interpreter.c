@@ -87,14 +87,19 @@ void WriteStringIntoRam(int address, char *str)
     WriteIntoRam(address + len, '\0');
 }
 
+//  Worked my ass to write this shity function, so be careful about changing it
 char *ReadStringFromRam(int address)
 {
-    char *strP = (char *)hardwareBoard.ram + address;
+    int index = 0;
+    while (ReadFromRAM(address + index) != '\0')
+        index++;
 
-    int size = -1;
-    while (*(strP + ++size) != '\0')
-        strP[size] = ReadFromRAM(address + size);
-    return strP;
+    char *str = malloc(index * sizeof(char));
+
+    for (size_t i = 0; i < index + 1; i++)
+        str[i] = ReadFromRAM(address + i);
+
+    return str;
 }
 
 // =============================================

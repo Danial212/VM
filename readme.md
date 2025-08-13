@@ -4,12 +4,15 @@ Accessing RAM       --->    #[location_address] --Example--> #850
 
 keywords:
 Using 'LOAD', you load secound parameter's value into first addres
-    LOAD [Register/RAM address] [Register/RAM address/value]
+    LOAD [Register/RAM address/Ram pointer] [Register/RAM address/value/Ram pointer]
     example: LOAD R2 1
 
 Using 'INP', you get user string input of the given length, and save into RAM
-    LOAD [length] [RAM address]
+    LOAD [length] [RAM address/Ram pointer]
     example: INP 14 #100
+
+Using '[]', We point to a address of RAM, whitch is saved in another cell, like a pointer
+    example: LOAD R4 [#32], --> Looks for the number in RAM #32, and then for the cell with the founded number and then loads it into R4 register
 
 Using 'LABEL', we define a label
     LABEL [label_name]

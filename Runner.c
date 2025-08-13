@@ -22,7 +22,6 @@ int main(int argc, char const *argv[])
     LabelListing();
     FunctionListing();
     Init_Data_Structures();
-    
 
     for (currentLine = 0; currentLine < linesCount; currentLine++)
         RunPussembler(lines[currentLine].tokens);
@@ -38,8 +37,8 @@ int main(int argc, char const *argv[])
     // StackManitoring();
     // printf("\n");
     // LabelsManitoring();
-    // printf("\n");
-    // RamManitoring();
+    printf("\n");
+    RamManitoring();
 }
 
 //  Open and read all the codes inside the target file
@@ -68,7 +67,7 @@ void FileReading()
 int InputReciver(char **buffer, int count)
 {
     for (size_t i = 0; i < count; i++)
-        buffer[i] = malloc(8);
+        buffer[i] = malloc(BUFFER_SIZE);
 
     //  Skip the line if it's a comment line with symbol '$'
     int ignoreLine = 0;
@@ -81,6 +80,7 @@ int InputReciver(char **buffer, int count)
     int charIndex = 0;
     int tokenIndex = 0;
     char c;
+
     while ((c = fgetc(file)) != '\n' && c != EOF)
     {
         //  Ignore and pass the lines that contain Comment in the code
@@ -102,10 +102,10 @@ int InputReciver(char **buffer, int count)
         {
             if (savingVarible_name)
             {
-                if (c == '>')
+                if (c == '>') //    Start Scanning constant string
                 {
                     stringName[stringNameIndex++] = '\0';
-                    savingVarible_name = 0;
+                    savingVarible_name = False;
                 }
                 else
                     stringName[stringNameIndex++] = c;
@@ -118,12 +118,20 @@ int InputReciver(char **buffer, int count)
 
         //  Handle multi space input, and treat like it's just one space
         //  So the command "LOAD   R2", is the same as "LOAD R2", unles we're saving a string
-        if (c == ' ' && !savingVarible)
+        if (c == ' ')
         {
-            buffer[tokenIndex++][charIndex] = '\0';
+            buffer[tokenIndex][charIndex] = '\0';
             while ((c = fgetc(file)) != '\n')
                 if (c != ' ')
+                {
+                    tokenIndex++;
                     break;
+                }
+            if (c == '$')
+            {
+                ignoreLine = True;
+                continue;
+            }
 
             charIndex = 0;
         }
@@ -132,6 +140,7 @@ int InputReciver(char **buffer, int count)
 
         buffer[tokenIndex][charIndex++] = c;
     }
+
     buffer[tokenIndex][charIndex] = '\0';
 
     if (savingVarible)
@@ -156,25 +165,10 @@ void RunPussembler(char **tokens)
     {
         //  The data we want to write into RAM/Register
         //  It could be from any source, like RAM, Register or directly thorugh user input
+        int *targetStorage = GetTargetStoragePointer(tokens[1]);
         int data = ValueParser(tokens[2]);
 
-        //  Writing data into Register
-        if (tokens[1][0] == 'R')
-        {
-            int destinationRegister = atoi(tokens[1] + 1);
-            if (destinationRegister > REGISTER_COUNT)
-                DebugLog("Out of Register Acsess Error.\nMax Register Count is %d", REGISTER_COUNT);
-
-            LoadImmediateIntoRegister(destinationRegister, data);
-        }
-        //  Writing data into RAM
-        else if (tokens[1][0] == '#')
-        {
-            int destinationRAM = atoi(tokens[1] + 1);
-            if (destinationRAM > RAM_SPACE)
-                DebugLog("Out of RAM Acsess Error.\nRAM's space size is %d", destinationRAM);
-            WriteIntoRam(destinationRAM, data);
-        }
+        *targetStorage = data;
     }
 
     // Adds value of RegisterB to RegisterA → Result saved in RegisterA
@@ -234,6 +228,7 @@ void RunPussembler(char **tokens)
             {
                 int insertNewLine = 0;
                 char *stringVaribleName;
+
                 if (tokens[2][1] == '.')
                 {
                     insertNewLine = 1;
@@ -241,9 +236,8 @@ void RunPussembler(char **tokens)
                 }
                 else
                     stringVaribleName = tokens[2] + 1;
-
                 printf(">>%s", get_saved_string(stringVaribleName));
-                
+
                 if (insertNewLine)
                     printf("\n");
             }
@@ -305,6 +299,11 @@ void RunPussembler(char **tokens)
             currentLine = findLabelLine(label);
         else if (StrEqul(tokens[4], "CALL"))
             currentLine = findFunctionLine(label);
+        else if (StrEqul(tokens[4], "RET"))
+        {
+            int returnLine = Pop_ReturnAddress() + 1;
+            currentLine = returnLine;
+        }
     }
     else if (StrEqul(tokens[0], "INP"))
     {
@@ -319,12 +318,13 @@ void RunPussembler(char **tokens)
 
             printf("\n>");
 
-            //  Includeing the '\n' too
-            fgets(string, inputLength + 1, stdin);
+            char c;
+            int index = 0;
+            while ((c = getchar()) != '\n' && c != EOF)
+                if (index < inputLength)
+                    string[index++] = c;
 
-            //  Remove the new-line('\n') symbol from the end of the input
-            if (string[strlen(string) - 1] == '\n')
-                string[strlen(string) - 1] = '\0';
+            string[index] = '\0';
 
             WriteStringIntoRam(ramlocation, string);
         }
@@ -397,14 +397,16 @@ int ValueParser(char *token)
     }
     else if (token[0] == '[')
     {
-        //  To be completed like this:
-        //  #[R2]   --> reading from RAM at the location of the secound register's number
-        //  #[#24]  --> reading from RAM at the location of the RAM's 24th number
-        //  #[#[R3]]--> ram location of ( ram's value at ( R3 value ) )
+        return ReadFromRAM(ValueParser(slice_string(token, 1, -1)));
     }
     else
     {
-        return atoi(token);
+        // Handle negative numbers (e.g., "-123") and regular integers
+        if (token[0] == '-')
+        {
+            return -1 * atoi(token + 1); // Convert remaining digits and negate
+        }
+        return atoi(token); // Positive number or 0
     }
 }
 
@@ -423,5 +425,7 @@ int *GetTargetStoragePointer(char *token)
         int *ram_poiner = GetRamPointer(RamLocation);
         return ram_poiner;
     }
+    else if (token[0] == '[')
+        return GetRamPointer(ValueParser(slice_string(token, 1, -1)));
     return NULL;
 }

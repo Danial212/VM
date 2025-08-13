@@ -1,57 +1,37 @@
-$ Decelering constant string
-.you_message>Your Entered Message:
-.Thank_message>Thanks for your message:
-.leftCircles> You got this round left: 
-.seperatorLine> ---------------------------------
+LOAD R9 1
+INP 20 #100
+INP 20 #200
+LOAD #10 100
+LOAD #20 200
 
+LABEL compare_loop
 
-LOAD R2 1
+LOAD R3 [#10]
+LOAD R4 [#20]
+OUT -s #100
+OUT -s #200
+IF R3 == -1 GOTO check_end
+IF R4 == -1 GOTO not_equal
+IF R3 != R4 GOTO not_equal
 
-FUNC nested
+LOAD R5 #10
+LOAD R6 #20
 
-SUB R11 R2
-OUT -s ..leftCircles
-OUT -s .seperatorLine
-OUT R11
+ADD R5 R9
+ADD R6 R9
 
-$ Recersive function
-IF R11 > 0 CALL nested
+LOAD #10 R5
+LOAD #20 R6
+GOTO compare_loop
 
-RET
-ENDF
+LABEL check_end
+IF R4 == -1 GOTO equal
+GOTO not_equal
 
-LOAD R11 9
-CALL nested
+LABEL not_equal
+OUT 0
+GOTO END
 
-$ CALL INPUT
-$ OUT -s .you_message
-$ OUT -s #100
-
-$ lins that start with '$' won't be compiled, like a commnet line
-
-$ getting input with the gien size 14, and save into the address in RAM at #100
-
-$ INP 14 #100
-$ INP #100
-$ INP R2
-
-$ LABEL loop
-$ SUB R1 R2
-$ OUT R1
-$ $ like a 7 time loop
-$ IF 1 <= R1 GOTO loop
-
-$ printign the string from the location #100
-
-$ OUT -s #100
-$ OUT -s .STR
-
-$ the NEW conditions we can use in our 'if' blocks
-$ OLD  vs   NEW
-$ EQL  <->  ==
-$ NEQ  <->  !=
-$ LES  <->  <
-$ LEQ  <->  <=
-$ MOR  <->  >
-$ MEQ  <->  >=
-
+LABEL equal
+OUT 1
+LABEL END

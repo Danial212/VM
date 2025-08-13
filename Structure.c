@@ -12,7 +12,7 @@ int Init_Data_Structures()
     Stack_Initialize();
 }
 
-//////////////////////////////////////////////////////////////////
+
 //                  STACK STRUCTURE OPERATIONS
 //////////////////////////////////////////////////////////////////
 
@@ -102,7 +102,7 @@ void StackManitoring()
     printf("\n------------------------------------------------------------\n");
 }
 
-//////////////////////////////////////////////////////////////////
+
 //                  RETURN STACK OPERATIONS
 //////////////////////////////////////////////////////////////////
 
@@ -156,7 +156,7 @@ void ReturnStackManitoring()
     printf("\n------------------------------------------------------------\n");
 }
 
-///////////////////////////////////////////////////////////
+
 //                 FUNCTION STRUCTURE
 ///////////////////////////////////////////////////////////
 Function functionList[20];
@@ -196,7 +196,8 @@ void FunctionsManitoring()
             printf("%d) FUNC <%s> at line .%d\n", i + 1, functionList[i].funcName, functionList[i].startLine);
 }
 
-//////////////////////////////////////////////////////////////////
+
+
 //                  LABELS STRUCTURE OPERATIONS
 //////////////////////////////////////////////////////////////////
 
@@ -235,7 +236,7 @@ void LabelsManitoring()
         printf("Label <%s> at the line #%d", labelsList[i].labelName, labelsList[i].labelLine + 1);
 }
 
-//////////////////////////////////////////////////////////////////
+
 //                  CONSTANT STRING STRUCTURE
 //////////////////////////////////////////////////////////////////
 
@@ -244,9 +245,9 @@ int stringListCount = 0;
 
 void saveConstString(char *name, char *str)
 {
-    stringList[stringListCount].name = malloc(strlen(name));
+    stringList[stringListCount].name = malloc(strlen(name + 2));
     stringList[stringListCount].name = name;
-    stringList[stringListCount].string = malloc(strlen(str));
+    stringList[stringListCount].string = malloc(strlen(str + 2));
     stringList[stringListCount].string = str;
 
     stringListCount++;
