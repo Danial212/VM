@@ -5,7 +5,6 @@
 #include "GlobalVariables.h"
 #include "Runner.h"
 #include <string.h>
-#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -37,8 +36,8 @@ int main(int argc, char const *argv[])
     // StackManitoring();
     // printf("\n");
     // LabelsManitoring();
-    printf("\n");
-    RamManitoring();
+    // printf("\n");
+    // RamManitoring();
 }
 
 //  Open and read all the codes inside the target file
@@ -54,17 +53,27 @@ void FileReading()
         linesCount = i + 1;
         lines[i].tokens = malloc(MAX_Command_Tokens * sizeof(char *));
 
-        int canContinue = InputReciver(lines[i].tokens, MAX_Command_Tokens);
+        int canContinue = InputReciver(lines[i].tokens, MAX_Command_Tokens, file);
         if (canContinue == -1)
             break;
     }
     fclose(file);
 }
 
-/// @brief User input
+void EnableShell()
+{
+    while (1)
+    {
+        lines[linesCount].tokens = malloc(MAX_Command_Tokens * sizeof(char *));
+        InputReciver(lines[linesCount].tokens, MAX_Command_Tokens, stdin);
+        RunPussembler(lines[linesCount].tokens);
+        linesCount++;
+    }
+}
+
 /// @returns 0:  Continue getting input,  -1: End of input
-/// @warning The 'file' that we'll read the code from it, should be open first
-int InputReciver(char **buffer, int count)
+/// @warning If you're reading from a 'file', it should be opened first
+int InputReciver(char **buffer, int count, FILE *inputStream)
 {
     for (size_t i = 0; i < count; i++)
         buffer[i] = malloc(BUFFER_SIZE);
@@ -81,7 +90,7 @@ int InputReciver(char **buffer, int count)
     int tokenIndex = 0;
     char c;
 
-    while ((c = fgetc(file)) != '\n' && c != EOF)
+    while ((c = fgetc(inputStream)) != '\n' && c != EOF)
     {
         //  Ignore and pass the lines that contain Comment in the code
         if (c == '$')
@@ -121,7 +130,7 @@ int InputReciver(char **buffer, int count)
         if (c == ' ')
         {
             buffer[tokenIndex][charIndex] = '\0';
-            while ((c = fgetc(file)) != '\n')
+            while ((c = fgetc(inputStream)) != '\n')
                 if (c != ' ')
                 {
                     tokenIndex++;
@@ -223,6 +232,12 @@ void RunPussembler(char **tokens)
                 int stringLocation = atoi(tokens[2] + 1);
                 printf(">>%s\n", ReadStringFromRam(stringLocation));
             }
+            //  Reading address from RAM  [...]
+            else if (tokens[2][0] == '[')
+            {
+                int stringLocation = ValueParser(tokens[2]);
+                printf("%d>>%s\n", stringLocation, ReadStringFromRam(stringLocation));
+            }
             //  Reading string from RAM starts with .
             else if (tokens[2][0] == '.')
             {
@@ -249,6 +264,7 @@ void RunPussembler(char **tokens)
     else if (StrEqul(tokens[0], "PUSH"))
     {
         int value = ValueParser(tokens[1]);
+        printf("Pushing %d into stack\n", value);
         Stack_Push(value);
     }
 
@@ -298,22 +314,28 @@ void RunPussembler(char **tokens)
         if (StrEqul(tokens[4], "GOTO"))
             currentLine = findLabelLine(label);
         else if (StrEqul(tokens[4], "CALL"))
+        {
             currentLine = findFunctionLine(label);
+        }
         else if (StrEqul(tokens[4], "RET"))
         {
-            int returnLine = Pop_ReturnAddress() + 1;
+            int returnLine = Pop_ReturnAddress();
             currentLine = returnLine;
         }
     }
     else if (StrEqul(tokens[0], "INP"))
     {
         //  Write the input string into the RAM
-        if (tokens[2][0] == '#')
+        if (tokens[2][0] == '#' || tokens[2][0] == '[')
         {
             int inputLength = atoi(tokens[1]);
-            int ramlocation = atoi(tokens[2] + 1);
+            int ramlocation = -1;
+            if (tokens[2][0] == '[')
+                ramlocation = ValueParser(slice_string(tokens[2], 1, -1));
+            else
+                ramlocation = atoi(tokens[2] + 1);
 
-            //  Includeing the '\0' symbol to save at the end
+            //  Including the '\0' symbol to save at the end
             char *string = malloc((1 + inputLength) * sizeof(char));
 
             printf("\n>");
@@ -368,7 +390,7 @@ void RunPussembler(char **tokens)
             return;
         }
 
-        int returnLine = Pop_ReturnAddress() + 1;
+        int returnLine = Pop_ReturnAddress();
         currentLine = returnLine;
     }
 }
