@@ -16,6 +16,26 @@ int linesCount = 0;
 
 int main(int argc, char const *argv[])
 {
+    printf("Test1\n");
+
+    addFileToList("test.txt");
+    FILE *f = openFileFromList("test.txt");
+
+    printf("opening file: %d \n", f);
+    closeFileFromList("test.txt");
+
+    if (f == NULL)
+        printf("EMPTY");
+
+    char c;
+
+    while ((c = fgetc(f)) != EOF)
+        printf("%c", c);
+
+    filesList_Manitoring();
+    printf("Test2\n");
+
+    return 0;
     InitializeHardWare();
     FileReading();
     LabelListing();
@@ -381,7 +401,6 @@ void RunPussembler(char **tokens)
         }
         currentLine = findFunctionLine(tokens[1]);
     }
-
     else if (StrEqul(tokens[0], "RET"))
     {
         if (Return_Stack_IsEmpty())
@@ -392,6 +411,19 @@ void RunPussembler(char **tokens)
 
         int returnLine = Pop_ReturnAddress();
         currentLine = returnLine;
+    }
+    else if (StrEqul(tokens[0], "FOPEN"))
+    {
+        // open a File
+    }
+    else if (StrEqul(tokens[0], "FCLOSE"))
+    {
+        // close a File
+    }
+    else if (StrEqul(tokens[0], "FRUN"))
+    {
+        // run a File
+        // it has to be opend first
     }
 }
 

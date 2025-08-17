@@ -3,7 +3,6 @@
 #include "CommonTools.h"
 #include "GlobalVariables.h"
 #include "Runner.h"
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -11,7 +10,6 @@ int Init_Data_Structures()
 {
     Stack_Initialize();
 }
-
 
 //                  STACK STRUCTURE OPERATIONS
 //////////////////////////////////////////////////////////////////
@@ -102,7 +100,6 @@ void StackManitoring()
     printf("\n------------------------------------------------------------\n");
 }
 
-
 //                  RETURN STACK OPERATIONS
 //////////////////////////////////////////////////////////////////
 
@@ -156,7 +153,6 @@ void ReturnStackManitoring()
     printf("\n------------------------------------------------------------\n");
 }
 
-
 //                 FUNCTION STRUCTURE
 ///////////////////////////////////////////////////////////
 Function functionList[20];
@@ -196,8 +192,6 @@ void FunctionsManitoring()
             printf("%d) FUNC <%s> at line .%d\n", i + 1, functionList[i].funcName, functionList[i].startLine);
 }
 
-
-
 //                  LABELS STRUCTURE OPERATIONS
 //////////////////////////////////////////////////////////////////
 
@@ -236,7 +230,6 @@ void LabelsManitoring()
         printf("Label <%s> at the line #%d", labelsList[i].labelName, labelsList[i].labelLine + 1);
 }
 
-
 //                  CONSTANT STRING STRUCTURE
 //////////////////////////////////////////////////////////////////
 
@@ -265,5 +258,60 @@ char *get_saved_string(char *name)
     for (size_t i = 0; i < stringListCount; i++)
         if (StrEqul(name, stringList[i].name))
             return stringList[i].string;
+    return NULL;
+}
+
+//                  File Management operations
+//////////////////////////////////////////////////////////////////
+
+FileStruct filesList[100];
+int filesListCount = 0;
+
+int addFileToList(char *name)
+{
+    filesList[filesListCount].name = malloc(strlen(name + 2));
+    strcpy(filesList[filesListCount].name, name);
+    filesList[filesListCount].file = NULL;
+    filesListCount++;
+    return 1;
+}
+FILE *openFileFromList(char *name)
+{
+    FILE *file = fopen(name, "r");
+
+    if (file == NULL)
+        //  You add the file to list, the the file doesn't exist in dirextory
+        return NULL;
+
+    findFileFromList(name)->file = file;
+
+    return file;
+}
+void closeFileFromList(char *name)
+{
+    FileStruct *fileStruct = findFileFromList(name);
+    fclose(fileStruct->file);
+    fileStruct->file = NULL;
+}
+int runFileFromList(char *name)
+{
+}
+
+void filesList_Manitoring()
+{
+    for (size_t i = 0; i < filesListCount; i++)
+        printf("%d)%s\n", i + 1, filesList[i].name);
+
+    printf("---------------------------------\n");
+}
+
+FileStruct *findFileFromList(char *name)
+{
+    for (size_t i = 0; i < filesListCount; i++)
+        if (StrEqul(filesList[i].name, name))
+            return (filesList + i);
+
+    //  Coudln't find the specific file, you must forget to add add that,
+    //      Or it doesn't exist
     return NULL;
 }
