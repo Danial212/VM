@@ -172,11 +172,11 @@ int findFunctionLine(char *funcName)
 
 void FunctionListing()
 {
-    for (int i = 0; i < linesCount; i++)
+    for (int i = 0; i < currentProcess.linesCount; i++)
     {
-        if (StrEqul(lines[i].tokens[0], "FUNC"))
+        if (StrEqul(currentProcess.lines[i].tokens[0], "FUNC"))
         {
-            functionList[functionCount].funcName = lines[i].tokens[1];
+            functionList[functionCount].funcName = currentProcess.lines[i].tokens[1];
             functionList[functionCount].startLine = i;
             functionCount++;
         }
@@ -201,12 +201,12 @@ int labelsCount = 0;
 //  List all the label, sith their name and line number, for later jumping actions
 void LabelListing()
 {
-    for (size_t i = 0; i < linesCount; i++)
+    for (size_t i = 0; i < currentProcess.linesCount; i++)
     {
-        if (StrEqul(lines[i].tokens[0], "LABEL"))
+        if (StrEqul(currentProcess.lines[i].tokens[0], "LABEL"))
         {
             labelsList[labelsCount].labelLine = i;
-            labelsList[labelsCount].labelName = lines[i].tokens[1];
+            labelsList[labelsCount].labelName = currentProcess.lines[i].tokens[1];
             labelsCount++;
         }
     }
@@ -295,6 +295,12 @@ void closeFileFromList(char *name)
 }
 int runFileFromList(char *name)
 {
+    FILE *targetFile = findFileFromList(name)->file;
+    if (targetFile == NULL)
+        return -1;
+    else
+    {
+    }
 }
 
 void filesList_Manitoring()
@@ -314,4 +320,58 @@ FileStruct *findFileFromList(char *name)
     //  Coudln't find the specific file, you must forget to add add that,
     //      Or it doesn't exist
     return NULL;
+}
+
+//                      PCB Stack Structure
+//////////////////////////////////////////////////////////////////
+PCB PCB_Stack[100];
+int PCB_StackIndex = 0;
+
+/// @return 0 --> StackOverFlow, 1 --> Success FFucK @ilia212
+int PCB_stack_push(PCB targetPCB)
+{
+    printf("----------------------------------\n");
+    printf("name:%s, line:%d, line count:%d, \n ", targetPCB.blockName, targetPCB.currentLine, targetPCB.linesCount);
+    printf("----------------------------------\n");
+    if (PCB_StackIndex == 100)
+        return 0;
+    PCB_Stack[PCB_StackIndex++] = targetPCB;
+    return 1;
+}
+
+int PCB_stack_isEmpty()
+{
+    return (PCB_StackIndex == 0);
+}
+
+PCB PCB_stack_pop()
+{
+    if (PCB_StackIndex < 0)
+        exit(1);
+    PCB_StackIndex--;
+    return PCB_Stack[PCB_StackIndex];
+}
+
+void PCB_stack_Manitoring()
+{
+
+    printf("####################### PCB STACK #######################\n|");
+
+    for (size_t i = 0; i < PCB_StackIndex; i++)
+    {
+        int number = i + 1;
+        char *name = PCB_Stack[2].blockName;
+        int size = int_length(number) + 2 + strlen(name);
+
+        printf("%d) %s", number, name);
+        for (size_t j = 0; j < size; j++)
+            printf(" ");
+
+        if ((i + 1) % 10 == 0)
+            printf("\n");
+
+        printf("|");
+    }
+
+    printf("\n------------------------------------------------------------\n");
 }

@@ -57,3 +57,4 @@ IF R3 == 1 GOTO yes
 OUT -s ..!They'er_equal
 
 LABEL end
+FRUN test.txt

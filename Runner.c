@@ -8,42 +8,29 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-static int currentLine = 0;
 FILE *file;
 
-CommandStrcuture lines[100];
-int linesCount = 0;
+PCB currentProcess;
 
 int main(int argc, char const *argv[])
 {
-    printf("Test1\n");
-
-    addFileToList("test.txt");
-    FILE *f = openFileFromList("test.txt");
-
-    printf("opening file: %d \n", f);
-    closeFileFromList("test.txt");
-
-    if (f == NULL)
-        printf("EMPTY");
-
-    char c;
-
-    while ((c = fgetc(f)) != EOF)
-        printf("%c", c);
-
-    filesList_Manitoring();
-    printf("Test2\n");
-
-    return 0;
     InitializeHardWare();
-    FileReading();
+    currentProcess.blockName = "Init Process";
+
+    FileReading("input.txt");
     LabelListing();
     FunctionListing();
     Init_Data_Structures();
 
-    for (currentLine = 0; currentLine < linesCount; currentLine++)
-        RunPussembler(lines[currentLine].tokens);
+    while (1)
+    {
+        for (; currentProcess.currentLine < currentProcess.linesCount; currentProcess.currentLine++)
+            RunPussembler(currentProcess.lines[currentProcess.currentLine].tokens);
+        if (!PCB_stack_isEmpty())
+            currentProcess = PCB_stack_pop();
+        else
+            break;
+    }
 
     // Manitoring data structures, hardware, ...
     // printf("\n");
@@ -61,19 +48,19 @@ int main(int argc, char const *argv[])
 }
 
 //  Open and read all the codes inside the target file
-void FileReading()
+void FileReading(char *fileNmae)
 {
-    file = fopen("input.txt", "r");
+    file = fopen(fileNmae, "r");
 
     if (file == NULL)
         DebugLog("The target file to read the code couldn't be read");
 
     for (size_t i = 0; i < 100; i++)
     {
-        linesCount = i + 1;
-        lines[i].tokens = malloc(MAX_Command_Tokens * sizeof(char *));
+        currentProcess.linesCount = i + 1;
+        currentProcess.lines[i].tokens = malloc(MAX_Command_Tokens * sizeof(char *));
 
-        int canContinue = InputReciver(lines[i].tokens, MAX_Command_Tokens, file);
+        int canContinue = InputReciver(currentProcess.lines[i].tokens, MAX_Command_Tokens, file);
         if (canContinue == -1)
             break;
     }
@@ -84,10 +71,10 @@ void EnableShell()
 {
     while (1)
     {
-        lines[linesCount].tokens = malloc(MAX_Command_Tokens * sizeof(char *));
-        InputReciver(lines[linesCount].tokens, MAX_Command_Tokens, stdin);
-        RunPussembler(lines[linesCount].tokens);
-        linesCount++;
+        currentProcess.lines[currentProcess.linesCount].tokens = malloc(MAX_Command_Tokens * sizeof(char *));
+        InputReciver(currentProcess.lines[currentProcess.linesCount].tokens, MAX_Command_Tokens, stdin);
+        RunPussembler(currentProcess.lines[currentProcess.linesCount].tokens);
+        currentProcess.linesCount++;
     }
 }
 
@@ -284,7 +271,6 @@ void RunPussembler(char **tokens)
     else if (StrEqul(tokens[0], "PUSH"))
     {
         int value = ValueParser(tokens[1]);
-        printf("Pushing %d into stack\n", value);
         Stack_Push(value);
     }
 
@@ -296,7 +282,7 @@ void RunPussembler(char **tokens)
 
     else if (StrEqul(tokens[0], "GOTO"))
     {
-        currentLine = findLabelLine(tokens[1]);
+        currentProcess.currentLine = findLabelLine(tokens[1]);
     }
 
     //  'if' programs
@@ -332,15 +318,15 @@ void RunPussembler(char **tokens)
         if (!result)
             return;
         if (StrEqul(tokens[4], "GOTO"))
-            currentLine = findLabelLine(label);
+            currentProcess.currentLine = findLabelLine(label);
         else if (StrEqul(tokens[4], "CALL"))
         {
-            currentLine = findFunctionLine(label);
+            currentProcess.currentLine = findFunctionLine(label);
         }
         else if (StrEqul(tokens[4], "RET"))
         {
             int returnLine = Pop_ReturnAddress();
-            currentLine = returnLine;
+            currentProcess.currentLine = returnLine;
         }
     }
     else if (StrEqul(tokens[0], "INP"))
@@ -385,21 +371,21 @@ void RunPussembler(char **tokens)
     else if (StrEqul(tokens[0], "FUNC"))
     {
         // Skip all lines until we reach ENDF
-        while (!StrEqul(lines[currentLine].tokens[0], "ENDF"))
-            currentLine++;
+        while (!StrEqul(currentProcess.lines[currentProcess.currentLine].tokens[0], "ENDF"))
+            currentProcess.currentLine++;
     }
 
     // Go to the funtion decelared using 'FUNC'
     else if (StrEqul(tokens[0], "CALL"))
     {
-        int returnAddress = currentLine; // Store the address of the next line after CALL to return to it later
+        int returnAddress = currentProcess.currentLine; // Store the address of the next line after CALL to return to it later
 
         if (!Push_ReturnAddress(returnAddress))
         {
             printf("Error: Stack overflow while saving return address!\n");
             return;
         }
-        currentLine = findFunctionLine(tokens[1]);
+        currentProcess.currentLine = findFunctionLine(tokens[1]);
     }
     else if (StrEqul(tokens[0], "RET"))
     {
@@ -410,7 +396,7 @@ void RunPussembler(char **tokens)
         }
 
         int returnLine = Pop_ReturnAddress();
-        currentLine = returnLine;
+        currentProcess.currentLine = returnLine;
     }
     else if (StrEqul(tokens[0], "FOPEN"))
     {
@@ -422,8 +408,20 @@ void RunPussembler(char **tokens)
     }
     else if (StrEqul(tokens[0], "FRUN"))
     {
-        // run a File
-        // it has to be opend first
+        PCB pcb = {
+            .blockName = tokens[1],
+            .childNode = NULL,
+            .currentLine = 0,
+        };
+
+        //  Continue from the line after the line we jump out of the instructions
+        currentProcess.currentLine++;
+        //  Saving the current process into PCB list
+        PCB_stack_push(currentProcess);
+        //  Switching to our target process
+        currentProcess = pcb;
+        //  Loading the pussembly instructions from the file into our current PCB
+        FileReading(tokens[1]);
     }
 }
 

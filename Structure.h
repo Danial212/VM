@@ -1,6 +1,7 @@
 #ifndef Structure_H // Unique name for this header
 #define Structure_H
 #include <stdio.h>
+#include "Runner.h"
 
 int Init_Data_Structures();
 
@@ -92,5 +93,16 @@ void closeFileFromList(char *name);
 int runFileFromList(char *name);
 void filesList_Manitoring();
 FileStruct *findFileFromList(char *name);
+
+//                      PCB Stack Structure
+//////////////////////////////////////////////////////////////////
+
+extern PCB PCB_Stack[100];
+extern int PCB_StackIndex;
+
+int PCB_stack_push(PCB pcb);
+int PCB_stack_isEmpty();
+PCB PCB_stack_pop();
+void PCB_stack_Manitoring();
 
 #endif

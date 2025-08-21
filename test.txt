@@ -1,1 +1,3 @@
-this is a test 
+.TestSTR> This is just a test
+OUT -s ..TestSTR
+

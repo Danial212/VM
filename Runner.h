@@ -6,7 +6,7 @@ int InputReciver(char **, int, FILE *);
 void RunPussembler(char **);
 int ValueParser(char *token);
 int *GetTargetStoragePointer(char *token);
-void FileReading();
+void FileReading(char *fileNmae);
 void EnableShell();
 
 typedef struct
@@ -14,7 +14,15 @@ typedef struct
     char **tokens;
 } CommandStrcuture;
 
-extern CommandStrcuture lines[100];
-extern int linesCount;
+typedef struct
+{
+    CommandStrcuture lines[100];
+    char *blockName;
+    int linesCount;
+    int currentLine;
+    struct PCB *childNode;
+} PCB;
+
+extern PCB currentProcess;
 
 #endif
