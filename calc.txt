@@ -1,0 +1,50 @@
+; Interactive calculator with Pussembler
+; Numbers in R1 and R2
+; Operation selection in R3
+
+; Load numbers from user
+OUT "Enter your first number: "
+IN R1      ; User enters first number
+
+OUT "Enter your second number: "
+IN R2      ; User enters second number
+
+; Ask user which operation to perform
+OUT "Select operation: 1=Add, 2=Sub, 3=Mul, 4=Div, 5=Mod"
+IN R3      ; User enters operation number
+
+; Conditional jumps based on R3
+IF R3 == 1 GOTO ADD_LABEL
+IF R3 == 2 GOTO SUB_LABEL
+IF R3 == 3 GOTO MUL_LABEL
+IF R3 == 4 GOTO DIV_LABEL
+IF R3 == 5 GOTO MOD_LABEL
+GOTO END
+
+ADD_LABEL:
+    ADD R1 R2
+    OUT R1
+    GOTO END
+
+SUB_LABEL:
+    SUB R1 R2
+    OUT R1
+    GOTO END
+
+MUL_LABEL:
+    MUL R1 R2
+    OUT R1
+    GOTO END
+
+DIV_LABEL:
+    DIV R1 R2
+    OUT R1
+    GOTO END
+
+MOD_LABEL:
+    MOD R1 R2
+    OUT R1
+    GOTO END
+
+END:
+    ; Program finished
