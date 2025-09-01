@@ -1,3 +1,4 @@
+FRUN test.txt
 FUNC str_cmp
 LOAD R9 1
 LABEL compare_loop
@@ -57,4 +58,3 @@ IF R3 == 1 GOTO yes
 OUT -s ..!They'er_equal
 
 LABEL end
-FRUN test.txt

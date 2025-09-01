@@ -1,0 +1,2 @@
+.TestSTR> This is just a test 2 BRO
+OUT -s ..TestSTR

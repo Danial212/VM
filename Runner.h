@@ -14,7 +14,7 @@ typedef struct
     char **tokens;
 } CommandStrcuture;
 
-typedef struct
+typedef struct PCB
 {
     CommandStrcuture lines[100];
     char *blockName;
