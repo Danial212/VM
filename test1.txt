@@ -1,0 +1,3 @@
+.TestSTR> This is just a test 1 BRO
+OUT -s ..TestSTR
+FRUN test2.txt

@@ -88,6 +88,8 @@ int InputReciver(char **buffer, int count, FILE *inputStream)
     //  Skip the line if it's a comment line with symbol '$'
     int ignoreLine = 0;
 
+    int hasBegeningSpace = 0;
+
     //  When we want to save constant data like strings
     int savingVarible = 0, savingVarible_name = 0;
     char *stringVar, *stringName;
@@ -136,7 +138,8 @@ int InputReciver(char **buffer, int count, FILE *inputStream)
         //  So the command "LOAD   R2", is the same as "LOAD R2", unles we're saving a string
         if (c == ' ')
         {
-            buffer[tokenIndex][charIndex] = '\0';
+            if (!(tokenIndex == 0 && charIndex == 0))
+                buffer[tokenIndex][charIndex] = '\0';
             while ((c = fgetc(inputStream)) != '\n')
                 if (c != ' ')
                 {
@@ -416,6 +419,8 @@ void RunPussembler(char **tokens)
 
         //  Continue from the line after the line we jump out of the instructions
         currentProcess.currentLine++;
+        //  Initiliza the current node's child process
+        currentProcess.childNode = &pcb;
         //  Saving the current process into PCB list
         PCB_stack_push(currentProcess);
         //  Switching to our target process
@@ -423,6 +428,10 @@ void RunPussembler(char **tokens)
         //  Loading the pussembly instructions from the file into our current PCB
         FileReading(tokens[1]);
     }
+    else
+        return;
+    //  Manitoring the current running script + it's line
+    // printf("                                Running On <%s>, line:%d \n", currentProcess.blockName, currentProcess.currentLine);
 }
 
 //  Extract the data from the given token.
