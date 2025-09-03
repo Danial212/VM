@@ -1,3 +1,31 @@
-.TestSTR> This is just a test
-OUT -s ..TestSTR
-FRUN test1.txt
+FUNC ReadFile
+    FOPEN test2.txt
+    LOAD R4 100
+    LOAD R2 1
+    LABEL ReadLoop
+        F_REA test2.txt R6
+        LOAD [R4] R6
+        ADD R4 R2
+        IF R6 != -1 GOTO ReadLoop
+    LOAD [R4] 0
+    OUT -s #100
+FCLOSE test2.txt
+RET
+ENDF
+
+CALL ReadFile
+
+FUNC WriteFile
+    FOPEN test3.txt
+    LOAD R4 100
+    LOAD R2 1
+    LABEL WriteLoop
+        F_WRI test3.txt [R4]
+        ADD R4 R2
+        IF [R4] != -1 GOTO WriteLoop
+        
+FCLOSE test3.txt
+RET
+ENDF
+
+CALL WriteFile

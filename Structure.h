@@ -82,6 +82,7 @@ typedef struct
 {
     char *name;
     FILE *file;
+    int offset;
 } FileStruct;
 
 extern FileStruct filesList[100];
@@ -90,7 +91,6 @@ extern int filesListCount;
 int addFileToList(char *name);
 FILE *openFileFromList(char *name);
 void closeFileFromList(char *name);
-int runFileFromList(char *name);
 void filesList_Manitoring();
 FileStruct *findFileFromList(char *name);
 

@@ -17,7 +17,7 @@ int main(int argc, char const *argv[])
     InitializeHardWare();
     currentProcess.blockName = "Init Process";
 
-    FileReading("input.txt");
+    FileReading("test.txt");
     LabelListing();
     FunctionListing();
     Init_Data_Structures();
@@ -110,9 +110,9 @@ int InputReciver(char **buffer, int count, FILE *inputStream)
 
         if (!savingVarible && StrEqul_with_length(buffer[0], ".", 1))
         {
-            savingVarible = 1;
-            stringVar = malloc(100 * sizeof(char));
-            savingVarible_name = 1;
+            savingVarible = True;
+            stringVar = malloc(128 * sizeof(char));
+            savingVarible_name = True;
             stringName = malloc(64 * sizeof(char));
         }
 
@@ -130,7 +130,6 @@ int InputReciver(char **buffer, int count, FILE *inputStream)
             }
             else
                 stringVar[stringVarIndex++] = c;
-
             continue;
         }
 
@@ -138,14 +137,23 @@ int InputReciver(char **buffer, int count, FILE *inputStream)
         //  So the command "LOAD   R2", is the same as "LOAD R2", unles we're saving a string
         if (c == ' ')
         {
-            if (!(tokenIndex == 0 && charIndex == 0))
-                buffer[tokenIndex][charIndex] = '\0';
-            while ((c = fgetc(inputStream)) != '\n')
-                if (c != ' ')
-                {
-                    tokenIndex++;
-                    break;
-                }
+            if (tokenIndex == 0 && charIndex == 0)
+            {
+                while ((c = fgetc(inputStream)) != '\n')
+                    if (c != ' ')
+                        break;
+            }
+            else
+            {
+                if (!(tokenIndex == 0 && charIndex == 0))
+                    buffer[tokenIndex][charIndex] = '\0';
+                while ((c = fgetc(inputStream)) != '\n')
+                    if (c != ' ')
+                    {
+                        tokenIndex++;
+                        break;
+                    }
+            }
             if (c == '$')
             {
                 ignoreLine = True;
@@ -332,6 +340,7 @@ void RunPussembler(char **tokens)
             currentProcess.currentLine = returnLine;
         }
     }
+
     else if (StrEqul(tokens[0], "INP"))
     {
         //  Write the input string into the RAM
@@ -390,6 +399,7 @@ void RunPussembler(char **tokens)
         }
         currentProcess.currentLine = findFunctionLine(tokens[1]);
     }
+
     else if (StrEqul(tokens[0], "RET"))
     {
         if (Return_Stack_IsEmpty())
@@ -401,13 +411,57 @@ void RunPussembler(char **tokens)
         int returnLine = Pop_ReturnAddress();
         currentProcess.currentLine = returnLine;
     }
+
     else if (StrEqul(tokens[0], "FOPEN"))
     {
-        // open a File
+        addFileToList(tokens[1]);
+        if (openFileFromList(tokens[1]) == NULL)
+        {
+            printf("You must add file to list to open it");
+        }
     }
     else if (StrEqul(tokens[0], "FCLOSE"))
     {
-        // close a File
+        closeFileFromList(tokens[1]);
+    }
+    else if (StrEqul(tokens[0], "F_FLU"))
+    {
+        FileStruct *fileStruct = findFileFromList(tokens[1]);
+        fflush(fileStruct->file);
+    }
+    else if (StrEqul(tokens[0], "F_REA"))
+    {
+        // printf("test 1");
+        FileStruct *fileStruct = findFileFromList(tokens[1]);
+        int *targetStorage = GetTargetStoragePointer(tokens[2]);
+        if (targetStorage == NULL)
+            printf("There's problem in tokenizing address");
+        *targetStorage = fgetc(fileStruct->file);
+    }
+    else if (StrEqul(tokens[0], "F_WRI"))
+    {
+        FileStruct *fileStruct = findFileFromList(tokens[1]);
+        char c = ValueParser(tokens[2]);
+        fputc(c, fileStruct->file);
+    }
+    else if (StrEqul(tokens[0], "F_GOTO"))
+    {
+        FileStruct *fileStruct = findFileFromList(tokens[1]);
+        char *offsetToken = tokens[2];
+
+        if (offsetToken[0] == '+' || offsetToken[0] == '-')
+        {
+            int offset = atoi(offsetToken + 1);
+            if (offsetToken[0] == '-')
+                offset = -offset;
+            printf("Moving %d\n", offset);
+            fseek(fileStruct->file, offset, SEEK_CUR);
+        }
+        else
+        {
+            int offset = atoi(offsetToken);
+            fseek(fileStruct->file, offset, SEEK_SET);
+        }
     }
     else if (StrEqul(tokens[0], "FRUN"))
     {
@@ -430,8 +484,6 @@ void RunPussembler(char **tokens)
     }
     else
         return;
-    //  Manitoring the current running script + it's line
-    // printf("                                Running On <%s>, line:%d \n", currentProcess.blockName, currentProcess.currentLine);
 }
 
 //  Extract the data from the given token.

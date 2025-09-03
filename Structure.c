@@ -272,42 +272,34 @@ int addFileToList(char *name)
     filesList[filesListCount].name = malloc(strlen(name + 2));
     strcpy(filesList[filesListCount].name, name);
     filesList[filesListCount].file = NULL;
+    filesList[filesListCount].offset = 0;
     filesListCount++;
     return 1;
 }
 FILE *openFileFromList(char *name)
 {
-    FILE *file = fopen(name, "r");
+    FILE *file = fopen(name, "r+");
 
     if (file == NULL)
-        //  You add the file to list, the the file doesn't exist in dirextory
+        //  You add the file to list, the file doesn't exist in diretory
         return NULL;
 
     findFileFromList(name)->file = file;
 
     return file;
 }
+
 void closeFileFromList(char *name)
 {
     FileStruct *fileStruct = findFileFromList(name);
     fclose(fileStruct->file);
     fileStruct->file = NULL;
 }
-int runFileFromList(char *name)
-{
-    FILE *targetFile = findFileFromList(name)->file;
-    if (targetFile == NULL)
-        return -1;
-    else
-    {
-    }
-}
 
 void filesList_Manitoring()
 {
     for (size_t i = 0; i < filesListCount; i++)
-        printf("%d)%s\n", i + 1, filesList[i].name);
-
+        printf("%d)%s [%s]\n", i + 1, filesList[i].name, (filesList[i].file == NULL) ? "Opened" : "Closed");
     printf("---------------------------------\n");
 }
 
@@ -317,8 +309,8 @@ FileStruct *findFileFromList(char *name)
         if (StrEqul(filesList[i].name, name))
             return (filesList + i);
 
-    //  Coudln't find the specific file, you must forget to add add that,
-    //      Or it doesn't exist
+    //  Coudln't find the specific file, you must forget to add it to the list,
+    //  Or it doesn't exist at all
     return NULL;
 }
 
@@ -354,14 +346,11 @@ PCB PCB_stack_pop()
 
 void PCB_stack_Manitoring()
 {
-
     printf("####################### PCB STACK #######################\n|");
-
     for (size_t i = 0; i < PCB_StackIndex; i++)
     {
-        int number = i + 1;
         char *name = PCB_Stack[2].blockName;
-        int size = int_length(number) + 2 + strlen(name);
+        int number = i + 1, size = int_length(number) + 2 + strlen(name);
 
         printf("%d) %s", number, name);
         for (size_t j = 0; j < size; j++)
@@ -369,7 +358,6 @@ void PCB_stack_Manitoring()
 
         if ((i + 1) % 10 == 0)
             printf("\n");
-
         printf("|");
     }
 
