@@ -431,7 +431,6 @@ void RunPussembler(char **tokens)
     }
     else if (StrEqul(tokens[0], "F_REA"))
     {
-        // printf("test 1");
         FileStruct *fileStruct = findFileFromList(tokens[1]);
         int *targetStorage = GetTargetStoragePointer(tokens[2]);
         if (targetStorage == NULL)

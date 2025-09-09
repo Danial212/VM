@@ -2,13 +2,14 @@ Command sysmbol     --->    $
 Accessing Register  --->    R[register_address] --Example--> R2
 Accessing RAM       --->    #[location_address] --Example--> #850
 
-keywords:
+            ----------------------ISA----------------------
+
 Using 'LOAD', you load secound parameter's value into first addres
     LOAD [Register/RAM address/Ram pointer] [Register/RAM address/value/Ram pointer]
     example: LOAD R2 1
 
 Using 'INP', you get user string input of the given length, and save into RAM
-    LOAD [length] [RAM address/Ram pointer]
+    LOAD [length] [RAM_address/Ram_pointer]
     example: INP 14 #100
 
 Using '[]', We point to a address of RAM, whitch is saved in another cell, like a pointer
@@ -23,8 +24,9 @@ Using 'GOTO', we jump into the target label
     example: GOTO loop
 
 Using 'IF', we check a condition, and if that was treu we jump into a labl
-    IF [operator_1] [condition] [operator_2] GOTO [label_name]
+    IF [operator_1] [condition] [operator_2] GOTO/CALL [label_name]
     example: IF 1 <= R1 GOTO loop
+    example: IF 1 <= R1 CALL Func2
 
 Using math operation, we check do the proper operation, and save the value into the first given register
     ADD/SUB/Div/MUL/DIV/MOD [register_1] [register_2]
@@ -44,7 +46,7 @@ Using 'POP', we pop the from stack, and save into target storage
     POP [Register/RAM]
     example: POP #325
 
-Using 'FUNC', we decelare a function, 
+Using 'FUNC', we decelare a function,
 WARNING: always close a function block with 'ENDF'
     FUNC [funcrion_name]
     example: FUNC compare
@@ -58,3 +60,29 @@ Using 'CALL', we call a funtion and jump into it's code block
 
 Using 'RET', we return back of a function, we're inside if that
     RET
+
+Using 'FOPEN', we open a file for read and write
+    FOPEN [file_name]
+    example: FOPEN test2.txt
+
+Using 'FCLOSE', we close a file
+    FCLOSE [file_name]
+    example: FCLOSE test2.txt
+
+Using 'F_FLU', we fllush a opened file
+    F_FLU [file_name]
+    example: FCLOSE test2.txt
+
+Using 'F_REA', we read valur from the file, in the given cursor, and write it into given address
+    F_REA [file_name] [RAM_address/Ram_pointer]
+    example: F_REA test2.txt
+
+Using 'F_WRI', we write given value[in number format] into the opened file
+    F_WRI [file_name] [value]
+    example: F_WRI test2.txt R2
+
+Using 'F_GOTO', we change the file cursor position
+    F_GOTO [file_name] [cursor_operarion]
+    example: F_GOTO test2.txt 15
+    example: F_GOTO test2.txt +5
+    example: F_GOTO test2.txt -2
