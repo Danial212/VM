@@ -1,21 +1,23 @@
-; Interactive calculator with Pussembler
-; Numbers in R1 and R2
-; Operation selection in R3
+$ Interactive calculator with Pussembler
+$ Numbers in R1 and R2
+$ Operation selection in R3
 
-.num1>Enter your first number: 
-; Load nmbers from user
+.num1>Enter your first number:
+.num2>Enter your second number:
+$ Load nmbers from user
 
-OUT -s .num1
-INP R1      ; User enters first number
+OUT -s ..num1
+INP R1      $ User enters first number
 
-.num2>Enter your second number
-INP R2      ; User enters second number
+OUT -s ..num2
+INP R2      $ User enters second number
 
-; Ask user which operation to perform
+$ Ask user which operation to perform
 .operation>Select operation: 1 = Add, 2 = Sub, 3 = Mul, 4 = Div, 5 = Mod
-IN R3      ; User enters operation number
+OUT -s .operation
+INP R3      $ User enters operation number
 
-; Conditional jumps based on R3
+$ Conditional jumps based on R3
 IF R3 == 1 GOTO ADD_LABEL
 IF R3 == 2 GOTO SUB_LABEL
 IF R3 == 3 GOTO MUL_LABEL
@@ -49,4 +51,6 @@ LABEL MOD_LABEL:
     GOTO END
 
 LABEL END:
-    ; Program finished
+    .Finish>That was all
+    OUT -s .Finish
+    $ Program finished
