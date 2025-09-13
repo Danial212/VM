@@ -3,6 +3,7 @@
 #include "Structure.h"
 #include "interpreter.h"
 #include "GlobalVariables.h"
+#include "FileSystem.h"
 #include "Runner.h"
 #include <string.h>
 #include <stdint.h>
@@ -14,6 +15,9 @@ PCB currentProcess;
 
 int main(int argc, char const *argv[])
 {
+
+    testFileSystem();
+     return 0;
     InitializeHardWare();
     currentProcess.blockName = "Init Process";
 
