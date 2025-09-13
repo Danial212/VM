@@ -17,7 +17,7 @@ int main(int argc, char const *argv[])
     InitializeHardWare();
     currentProcess.blockName = "Init Process";
 
-    FileReading("test.txt");
+    FileReading("calc.txt");
     LabelListing();
     FunctionListing();
     Init_Data_Structures();

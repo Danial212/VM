@@ -49,7 +49,7 @@ void Divide_Registers(int registerA, int registerB)
         WriteIntoRegister(registerA, result);
     }
     else
-        printf("⚠️ Error: Division by zero!\n");
+        printf("Error: Division by zero!\n");
 }
 
 // Store remainder of division in RegisterA
@@ -62,7 +62,7 @@ void ModuloRegisters(int registerA, int registerB)
         WriteIntoRegister(registerA, result);
     }
     else
-        printf("⚠️ Error: Modulo by zero!\n");
+        printf("Error: Modulo by zero!\n");
 }
 
 // =============================================
@@ -111,9 +111,9 @@ void PrintRamValue(int ramLocation)
 {
     int value = ReadFromRAM(ramLocation);
     if (value != -1)
-        printf("📦 RAM[%d] = %d\n", ramLocation, value);
+        printf("RAM[%d] = %d\n", ramLocation, value);
     else
-        printf("📦 RAM[%d] is empty.\n", ramLocation);
+        printf("RAM[%d] is empty.\n", ramLocation);
 }
 
 // Print value from Register
@@ -121,5 +121,5 @@ void PrintRegisterValue(int destinationRegister)
 {
     int value = ReadDataFromRegister(destinationRegister);
 
-    printf("📦 REG[%d] = %d\n", destinationRegister, value);
+    printf("REG[%d] = %d\n", destinationRegister, value);
 }
