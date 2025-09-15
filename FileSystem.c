@@ -1,6 +1,14 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "FileSystem.h"
+#include "CommonTools.h"
+// #include "Hardware.h"
+// #include "Structure.h"
+// #include "interpreter.h"
+// #include "GlobalVariables.h"
+
+#include "Runner.h"
 #include <string.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 // Data structure for file information
 struct FileCell
@@ -41,8 +49,30 @@ struct Node *addToBeginning(struct Node *head, struct FileCell fileData)
     return newNode;
 }
 
-void deleteFile(char *name){
-    
+void deleteFile(char *name, struct Node *head)
+{
+    struct Node *current = head;
+
+    while (current != NULL)
+    {
+        //  then the next node is our target node to delete
+        if (StrEqul(current->next->data.fileName, name))
+        {
+            struct Node *toDelete = current->next;
+            if (toDelete->next != NULL)
+            {
+                struct Node *next = toDelete->next;
+                current->next = next;
+            }
+            else
+                current->next = NULL;
+
+            free(toDelete);
+            break;
+        }
+
+        current = current->next;
+    }
 }
 
 // Function to free all nodes in the list
@@ -90,5 +120,5 @@ void testFileSystem()
     head->next = NULL;
     printList(head);
 
-    
+    deleteFile("testing file 1", head);
 }

@@ -19,16 +19,18 @@ struct Node
     struct Node *next;
 };
 
-// Function to add a new node at the beginning of the list
+//  Function to add a new node at the beginning of the list
 struct Node *addToBeginning(struct Node *head, struct FileCell fileData);
-// Function to free all nodes in the list
+//  Function to free all nodes in the list
 void freeList(struct Node *head);
-// Helper function to print the list (for testing)
+//  Helper function to print the list (for testing)
 void printList(struct Node *head);
+
 
 /////////////// BASIC FILE OPERATIONS ///////////////
 void addFile(char *name, int location, int size);
-void deleteFile(char *name);
+//  Delete the given node by name
+void deleteFile(char *name, struct Node *head);
 void difragmetation();
 int searchFile(char *name);
 

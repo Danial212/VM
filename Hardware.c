@@ -85,7 +85,7 @@ int *ReadRegisterPointer(int registerNumber)
 {
     if (registerNumber == 0 && registerNumber > REGISTER_COUNT)
     {
-        fwrite("Error in getting register[%d]", registerNumber - 1, 30, stderr);
+        printf("Out of bound register access, can't get [%d]", registerNumber - 1);
         return NULL;
     }
     return &hardwareBoard.R[registerNumber - 1];

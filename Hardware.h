@@ -1,10 +1,8 @@
-#ifndef GLOBAL_VARIABLES_H
-#include "GlobalVariables.h"
-#endif
-
-
 #ifndef HARDWARE_H // Unique name for this Hardware.h
 #define HARDWARE_H
+
+
+#include "GlobalVariables.h"
 
 // Function declarations
 void InitializeHardWare(void);
