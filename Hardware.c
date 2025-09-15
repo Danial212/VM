@@ -52,6 +52,12 @@ void RamCleaning()
 
 int *GetRamPointer(int ramLocation)
 {
+    if (ramLocation < 0 || ramLocation >= RAM_SPACE) {
+        
+        fwrite("Error in getting ram location [%d]", ramLocation, 40, stderr);
+        return NULL;
+    }
+    
     return (hardwareBoard.ram + ramLocation);
 }
 
@@ -83,7 +89,7 @@ int ReadDataFromRegister(int registerNumber)
 //  Get register pointer
 int *ReadRegisterPointer(int registerNumber)
 {
-    if (registerNumber == 0 && registerNumber > REGISTER_COUNT)
+    if (registerNumber <= 0 || registerNumber > REGISTER_COUNT)
     {
         printf("Out of bound register access, can't get [%d]", registerNumber - 1);
         return NULL;
