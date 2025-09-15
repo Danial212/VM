@@ -28,18 +28,10 @@ void printList(struct Node *head);
 
 
 /////////////// BASIC FILE OPERATIONS ///////////////
-<<<<<<< HEAD
-void addFile(char *name, int location, int size);
-//  Delete the given node by name
-void deleteFile(char *name, struct Node *head);
-void difragmetation();
-int searchFile(char *name);
-=======
 void addFile(struct Node *head ,char *name, int location, int size);
 struct Node *deleteFile(struct Node *head, char *name);
 void defragmentation(struct Node *head);
 int searchFile(struct Node *head, char *name);
->>>>>>> a6fa974575918e7441bc97c3f3e42b8b07e9a84f
 
 /////////////// LOW-LEVEL FILE OPERATIONS ///////////////
 //  First free space
