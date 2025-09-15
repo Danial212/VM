@@ -27,38 +27,38 @@ void freeList(struct Node *head);
 void printList(struct Node *head);
 
 /////////////// BASIC FILE OPERATIONS ///////////////
-void addFile(char *name, int location, int size);
-void deleteFile(char *name);
-void difragmetation();
-int searchFile(char *name);
+void addFile(struct Node *head ,char *name, int location, int size);
+struct Node *deleteFile(struct Node *head, char *name);
+void defragmentation(struct Node *head);
+int searchFile(struct Node *head, char *name);
 
 /////////////// LOW-LEVEL FILE OPERATIONS ///////////////
 //  First free space
-int findFreeSpace(int size);
-int getTotalUsedSpace();
+int findFreeSpace(struct Node *head ,int size);
+int getTotalUsedSpace(struct Node *head);
 
 /////////////// LOW-LEVEL FILE OPERATIONS ///////////////
 // Load/Save FAT to/from disk
-int loadFATFromDisk();
-int saveFATToDisk();
+int loadFATFromDisk(const char *filename);
+int saveFATToDisk(struct Node *head, const char *filename);
 //  Clear all the files and delete full files table
-int formatFileSystem();
+int formatFileSystem(struct Node *head);
 
 /////////////// FILEs OPERATIONS ///////////////
 // Read/Write actual file content
-int readFileContent();
-int writeFileContent();
-int appendToFile();
+int readFileContent(const char *filename);
+int writeFileContent(const char *filename, const char *content);
+int appendToFile(const char *filename, const char *content);
 
 /////////////// HELPER FUNCTIONS ///////////////
 //  FAT's size (all the files we have)
-int getFilesCount();
+int getFilesCount(struct Node *head);
 //  Rename given files's name
-int renameFile(char *lastname, char *newName);
+int renameFile(struct Node *head ,char *lastname, char *newName);
 //  Not sure what the hell it's going to do
-void printFileSystemStats();
+void printFileSystemStats(struct Node *head, int size);
 //  Check if the given file exists
-int fileExists(char *name);
+int fileExists(struct Node *head ,char *name);
 
 void testFileSystem();
 

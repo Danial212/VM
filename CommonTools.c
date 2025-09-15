@@ -8,8 +8,13 @@
 // Enable In-Programm debuging, if the 'DEBUG_LOG' is True(1)
 void DebugLog(const char *__format, ...)
 {
-    if (DEBUG_LOG)
-        printf(__format);
+    if (DEBUG_LOG){
+        
+        va_list args;
+        va_start(args, __format);
+        vprintf(__format, args);
+        va_end(args);
+    }
 }
 
 //  Check if 2 string are equal, case in-setsitive
