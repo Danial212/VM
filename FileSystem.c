@@ -44,31 +44,6 @@ struct Node *addToBeginning(struct Node *head, struct FileCell fileData)
     return newNode;
 }
 
-void deleteFile(char *name, struct Node *head)
-{
-    struct Node *current = head;
-
-    while (current != NULL)
-    {
-        //  then the next node is our target node to delete
-        if (StrEqul(current->next->data.fileName, name))
-        {
-            struct Node *toDelete = current->next;
-            if (toDelete->next != NULL)
-            {
-                struct Node *next = toDelete->next;
-                current->next = next;
-            }
-            else
-                current->next = NULL;
-
-            free(toDelete);
-            break;
-        }
-
-        current = current->next;
-    }
-}
 /////////////////////////////////////////////////////
 /////////////// BASIC FILE OPERATIONS ///////////////
 /////////////////////////////////////////////////////
@@ -76,7 +51,6 @@ void deleteFile(char *name, struct Node *head)
 // Adding a file (as a new head)
 struct Node *addFile(struct Node *head, char *name, int location, int size)
 {
-
     struct FileCell cell;
 
     strncpy(cell.fileName, name, sizeof(cell.fileName) - 1);
@@ -207,7 +181,6 @@ int saveFATToDisk(struct Node *head, const char *filename)
 // Load FAT from disk
 struct Node *loadFATFromDisk(const char *filename)
 {
-
     FILE *fp = fopen(filename, "rb");
     if (!fp)
         return NULL;
@@ -323,6 +296,7 @@ void freeList(struct Node *head)
         free(current);
         current = next;
     }
+    head = NULL;
 }
 
 // Helper function to print the list (for testing)
@@ -356,7 +330,7 @@ void testFileSystem()
     head->next = NULL;
     printList(head);
 
-    deleteFile("testing file 1", head);
+    deleteFile(head, "testing file 1");
 }
 
 ////////////////////////////////////////////////
