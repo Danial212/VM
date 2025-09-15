@@ -40,10 +40,10 @@ int getTotalUsedSpace(struct Node *head);
 
 /////////////// LOW-LEVEL FILE OPERATIONS ///////////////
 // Load/Save FAT to/from disk
-int loadFATFromDisk(const char *filename);
+int *loadFATFromDisk(const char *filename);
 int saveFATToDisk(struct Node *head, const char *filename);
 //  Clear all the files and delete full files table
-int formatFileSystem(struct Node *head);
+void formatFileSystem(struct Node *head);
 
 /////////////// FILEs OPERATIONS ///////////////
 // Read/Write actual file content

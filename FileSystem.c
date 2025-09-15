@@ -226,12 +226,10 @@ struct Node *loadFATFromDisk(const char *filename)
 
 // Not sure if this one is correct
 // formating the whole file system
-struct Node *formatFileSystem(struct Node *head)
+void formatFileSystem(struct Node *head)
 {
-
     printf("Formatting file system... all files deleted!\n");
     freeList(head);
-    return NULL; // head = NULL
 }
 
 ////////////////////////////////////////////////
@@ -267,7 +265,6 @@ int appendToFile(const char *filename, const char *content)
 // reading from a file
 int readFileContent(const char *filename)
 {
-
     FILE *fp = fopen(filename, "r");
     if (!fp)
         return 0;
