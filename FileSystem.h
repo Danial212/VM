@@ -41,7 +41,7 @@ Node *getFileTable(char *name);
 
 /////////////// BOOT-LEVEL FILE SYSTEM ///////////////
 // Load/Save FAT to/from disk
-Node *loadFAT();
+void loadFAT();
 int saveFAT();
 void formatFileSystem();
 
