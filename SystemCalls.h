@@ -13,5 +13,6 @@ void listFile_SystemCall();
 void fileExist_SystemCall();
 void renameFile_SystemCall();
 
+char *fileNameFromRegister();
 
 #endif

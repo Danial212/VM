@@ -21,10 +21,22 @@ void handleSystemCalls()
         createFile_SystemCall();
         break;
     case 2:
-        /* code */
+        deleteFile_SystemCall();
         break;
     case 3:
-        /* code */
+        readFile_SystemCall();
+        break;
+    case 4:
+        writeFile_SystemCall();
+        break;
+    case 5:
+        listFile_SystemCall();
+        break;
+    case 6:
+        fileExist_SystemCall();
+        break;
+    case 7:
+        renameFile_SystemCall();
         break;
 
     default:
@@ -32,33 +44,103 @@ void handleSystemCalls()
     }
 }
 
-
-/// @brief File Name Address pointer = R2, File Size = R3
+//  File name --> R2
+//  File size --> R3
 void createFile_SystemCall()
 {
     //  Get file name string location in RAM, from R2 register
-    int fileNameLocation = ReadDataFromRegister(2);
-    char *fileName = ReadStringFromRam(fileNameLocation);
+    char *fileName = fileNameFromRegister();
     //  Get file's size from R3 register
     int size = ReadDataFromRegister(3);
 
-    createFile(fileName, size);
+    int result = createFile(fileName, size);
+    LoadImmediateIntoRegister(1, result);
 }
+
+//  File name --> R2
 void deleteFile_SystemCall()
 {
+    char *fileName = fileNameFromRegister();
+    int result = deleteFile(fileName);
+    LoadImmediateIntoRegister(1, result);
 }
+
+//  File name --> R2
+//  string address to write into RAM --> R3
 void readFile_SystemCall()
 {
+    //  Reads the string from Disk based on the address in 3th register ...
+    char *fileName = fileNameFromRegister();
+    int bufferAddress = ReadDataFromRegister(3);
+    Node *file = getFileTable(fileName);
+    int size = file->data.size;
+
+    //  And save it into the RAM
+    for (size_t i = 0; i < size; i++)
+        WriteIntoRam(bufferAddress + i, getDiskChar(file->data.location + i));
+
+    WriteIntoRam(bufferAddress + size, '\0');
+
+    int result = bufferAddress + size <= RAM_SIZE;
+    LoadImmediateIntoRegister(1, result);
 }
+
+//  File name --> R2
+//  string address to read from RAM --> R3
 void writeFile_SystemCall()
 {
+    char *fileName = fileNameFromRegister();
+    //  Reads the string from RAM based on the pointer in 3th register ...
+    int bufferAddress = ReadDataFromRegister(3);
+    char *content = ReadStringFromRam(bufferAddress);
+
+    printf("writing '%s' into disk", content);
+
+    //  And writes that string into the file
+    int result = writeFileContent(fileName, content);
+    LoadImmediateIntoRegister(1, result);
 }
+
 void listFile_SystemCall()
 {
+    printList();
 }
+
+//  File name --> R2
 void fileExist_SystemCall()
 {
+    char *fileName = fileNameFromRegister();
+
+    int result = fileExists(fileName);
+    LoadImmediateIntoRegister(1, result);
 }
+
+// Old name ---> R2
+// New name ---> R3
 void renameFile_SystemCall()
 {
+    char *fileName = fileNameFromRegister();
+
+    int fileNameLocation = ReadDataFromRegister(3);
+    char *newName = ReadStringFromRam(fileNameLocation);
+
+    int result = renameFile(fileName, newName);
+    LoadImmediateIntoRegister(1, result);
+}
+
+
+
+void clearScreen_SystemCall(){
+    
+}
+void exisProgram_SystemCall(){
+
+}
+
+/// @brief Gets the target name based on 2th register's pointer
+char *fileNameFromRegister()
+{
+    int fileNameLocation = ReadDataFromRegister(2);
+    char *fileName = ReadStringFromRam(fileNameLocation);
+    return fileName;
 }

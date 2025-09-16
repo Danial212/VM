@@ -51,7 +51,7 @@ int addFile(char *name, int location, int size)
 }
 
 // Delete a file using a name
-void deleteFile(char *name)
+int deleteFile(char *name)
 {
     Node *current = head;
     Node *prev = NULL;
@@ -65,22 +65,22 @@ void deleteFile(char *name)
             {
                 Node *newHead = current->next;
                 free(current);
-                head = newHead;
-                return; // Return new head
+                head = newHead; // head changes
             }
             else
             {
                 prev->next = current->next;
                 free(current);
-                return; // Head stays the same
+                // Head stays the same
             }
+            return 1;
         }
 
         prev = current;
         current = current->next;
     }
 
-    printf("File '%s' not found!\n", name);
+    return -1;
 }
 
 void defragmentation()
@@ -188,11 +188,9 @@ void loadFAT()
 void saveDisk()
 {
     FILE *f = fopen("Vdisk", "wb");
-    printf("-------------!!!!---------SAVING---------------\n");
     for (size_t i = 0; i < DISK_SIZE; i++)
     {
         char r = disk[i];
-        printf("%c", r);
         fwrite(&disk[i], sizeof(char), 1, f);
     }
 
@@ -210,7 +208,7 @@ void loadDisk()
     {
         char r;
         fread(&r, sizeof(char), 1, f);
-        printf("%c|", r == 0 ? ' ' : r);
+        // printf("%c|", r == 0 ? ' ' : r);
         disk[i] = r;
     }
 
@@ -317,6 +315,9 @@ int createFile(char *fileName, int size)
 
     DebugLog("making file %s at address %d in size of %d", fileName, firstAddress, size);
     return addFile(fileName, firstAddress, size);
+}
+char getDiskChar(int index){
+    return disk[index];
 }
 
 /////////////// HELPER FUNCTIONS ///////////////
@@ -441,7 +442,7 @@ int bootDisk()
     loadDisk();
     //  show the status
     printList();
-    
+
     return 1;
 }
 
