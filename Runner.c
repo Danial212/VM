@@ -15,8 +15,6 @@ PCB currentProcess;
 
 int main(int argc, char const *argv[])
 {
-    // testFileSystem();
-    //  return 0;
     InitializeHardWare();
     currentProcess.blockName = "Init Process";
 

@@ -4,62 +4,70 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define DISK_SIZE 1024
+#define FAT_NAME "FileSystem.at"
+
 // Data structure for file information
-struct FileCell
+typedef struct FileCell
 {
     char fileName[32];
     int location;
     int size;
-};
+} FileCell;
 
 // Node structure for the linked list
-struct Node
+typedef struct Node
 {
     struct FileCell data;
     struct Node *next;
-};
+} Node;
+
+
+extern char disk[DISK_SIZE];
+
+
 
 //  Function to add a new node at the beginning of the list
-struct Node *addToBeginning(struct Node *head, struct FileCell fileData);
+Node *addToBeginning(Node *head, FileCell fileData);
 //  Function to free all nodes in the list
-void freeList(struct Node *head);
+void freeList(Node *head);
 //  Helper function to print the list (for testing)
-void printList(struct Node *head);
+void printList(Node *head);
 
 /////////////// BASIC FILE OPERATIONS ///////////////
-struct Node *addFile(struct Node *head, char *name, int location, int size);
-struct Node *deleteFile(struct Node *head, char *name);
-void defragmentation(struct Node *head);
-int searchFile(struct Node *head, char *name);
+Node *addFile(Node *head, char *name, int location, int size);
+Node *deleteFile(Node *head, char *name);
+void defragmentation(Node *head);
+int searchFile(Node *head, char *name);
+Node *getFileTable(Node *head, char *name);
+
+
+/////////////// BOOT-LEVEL FILE SYSTEM ///////////////
+// Load/Save FAT to/from disk
+Node *loadFAT();
+int saveFAT(Node *head);
+void formatFileSystem(Node *head);
 
 /////////////// LOW-LEVEL FILE OPERATIONS ///////////////
 //  First free space
-int findFreeSpace(struct Node *head, int size);
-int getTotalUsedSpace(struct Node *head);
-
-/////////////// LOW-LEVEL FILE OPERATIONS ///////////////
-// Load/Save FAT to/from disk
-struct Node *loadFATFromDisk(const char *filename);
-int saveFATToDisk(struct Node *head, const char *filename);
-//  Clear all the files and delete full files table
-void formatFileSystem(struct Node *head);
+int availbleFreeSpace(Node *head);
+int getTotalUsedSpace(Node *head);
 
 /////////////// FILEs OPERATIONS ///////////////
 // Read/Write actual file content
-int readFileContent(const char *filename);
-int writeFileContent(const char *filename, const char *content);
-int appendToFile(const char *filename, const char *content);
+int readFileContent(Node *head, char *filename);
+int writeFileContent(Node *head, char *filename, char *content);
+int appendToFile(char *filename, char *content);
 
 /////////////// HELPER FUNCTIONS ///////////////
 //  FAT's size (all the files we have)
-int getFilesCount(struct Node *head);
+int getFilesCount(Node *head);
 //  Rename given files's name
-int renameFile(struct Node *head, char *lastname, char *newName);
-//  Not sure what the hell it's going to do
-void printFileSystemStats(struct Node *head, int size);
+int renameFile(Node *head, char *lastname, char *newName);
+void printFileSystemStats(Node *head);
 //  Check if the given file exists
-int fileExists(struct Node *head, char *name);
+int fileExists(Node *head, char *name);
 
-void testFileSystem();
+int bootDisk();
 
 #endif

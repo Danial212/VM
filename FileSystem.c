@@ -5,26 +5,13 @@
 #include <string.h>
 #include <stdint.h>
 
-// Data structure for file information
-struct FileCell
-{
-    char fileName[32];
-    int location;
-    int size;
-};
-
-// Node structure for the linked list
-struct Node
-{
-    struct FileCell data;
-    struct Node *next;
-};
+char disk[DISK_SIZE];
 
 // Function to add a new node at the beginning of the list
-struct Node *addToBeginning(struct Node *head, struct FileCell fileData)
+Node *addToBeginning(Node *head, FileCell fileData)
 {
     // Allocate memory for new node
-    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
+    Node *newNode = (Node *)malloc(sizeof(Node));
 
     if (newNode == NULL)
     {
@@ -49,9 +36,9 @@ struct Node *addToBeginning(struct Node *head, struct FileCell fileData)
 /////////////////////////////////////////////////////
 
 // Adding a file (as a new head)
-struct Node *addFile(struct Node *head, char *name, int location, int size)
+Node *addFile(Node *head, char *name, int location, int size)
 {
-    struct FileCell cell;
+    FileCell cell;
 
     strncpy(cell.fileName, name, sizeof(cell.fileName) - 1);
     cell.fileName[sizeof(cell.fileName) - 1] = '\0';
@@ -63,10 +50,10 @@ struct Node *addFile(struct Node *head, char *name, int location, int size)
 }
 
 // Delete a file using a name
-struct Node *deleteFile(struct Node *head, char *name)
+Node *deleteFile(Node *head, char *name)
 {
-    struct Node *current = head;
-    struct Node *prev = NULL;
+    Node *current = head;
+    Node *prev = NULL;
 
     while (current != NULL)
     {
@@ -76,7 +63,7 @@ struct Node *deleteFile(struct Node *head, char *name)
             // If it's the head node
             if (prev == NULL)
             {
-                struct Node *newHead = current->next;
+                Node *newHead = current->next;
                 free(current);
                 return newHead; // Return new head
             }
@@ -96,14 +83,13 @@ struct Node *deleteFile(struct Node *head, char *name)
     return head; // No change
 }
 
-void defragmentation(struct Node *head)
+void defragmentation(Node *head)
 {
     int currentLocation = 0;
-    struct Node *current = head;
+    Node *current = head;
 
     while (current != NULL)
     {
-
         current->data.location = currentLocation;
         currentLocation += current->data.size;
         current = current->next;
@@ -112,20 +98,31 @@ void defragmentation(struct Node *head)
     DebugLog("Defragmentation completed!\n"); // Or you could change it into printf. idk man its 4:49 AM and i'm kinda tired
 }
 
-// Search for a file using a name and head of linked list
-int searchFile(struct Node *head, char *name)
+// Search for a file by its name, returns the location in the disk
+int searchFile(Node *head, char *name)
 {
-    struct Node *current = head;
+    Node *current = head;
     while (current != NULL)
     {
         if (strcmp(current->data.fileName, name) == 0)
-        {
             return current->data.location;
-        }
         current = current->next;
     }
 
     return -1; // Not found
+}
+
+Node *getFileTable(Node *head, char *name)
+{
+    Node *current = head;
+    while (current != NULL)
+    {
+        if (strcmp(current->data.fileName, name) == 0)
+            return current;
+        current = current->next;
+    }
+
+    return NULL; // Not found
 }
 
 //////////////////////////////////////////////////////////
@@ -133,10 +130,10 @@ int searchFile(struct Node *head, char *name)
 //////////////////////////////////////////////////////////
 
 // All of linked list's used spase
-int getTotalUsedSpace(struct Node *head)
+int getTotalUsedSpace(Node *head)
 {
     int total = 0;
-    struct Node *current = head;
+    Node *current = head;
 
     while (current != NULL)
     {
@@ -147,10 +144,10 @@ int getTotalUsedSpace(struct Node *head)
 }
 
 // How much free space hasn't been used?
-int findFreeSpace(struct Node *head, int size)
+int availbleFreeSpace(Node *head)
 {
     int used = getTotalUsedSpace(head);
-    return size - used; // I'm not sure if this is what I should return...
+    return DISK_SIZE - used;
 }
 
 /////////////////////////////////////////////////////////
@@ -158,19 +155,17 @@ int findFreeSpace(struct Node *head, int size)
 /////////////////////////////////////////////////////////
 
 // Save FAT to disk
-int saveFATToDisk(struct Node *head, const char *filename)
+int saveFAT(Node *head)
 {
-
-    FILE *fp = fopen(filename, "wb");
+    FILE *fp = fopen(FAT_NAME, "wb");
     if (!fp)
         return 0;
 
-    struct Node *current = head;
+    Node *current = head;
 
     while (current != NULL)
     {
-
-        fwrite(&current->data, sizeof(struct FileCell), 1, fp);
+        fwrite(&current->data, sizeof(FileCell), 1, fp);
         current = current->next;
     }
 
@@ -179,16 +174,16 @@ int saveFATToDisk(struct Node *head, const char *filename)
 }
 
 // Load FAT from disk
-struct Node *loadFATFromDisk(const char *filename)
+Node *loadFAT()
 {
-    FILE *fp = fopen(filename, "rb");
+    FILE *fp = fopen(FAT_NAME, "rb");
     if (!fp)
         return NULL;
 
-    struct Node *head = NULL;
-    struct FileCell temp;
+    Node *head = NULL;
+    FileCell temp;
 
-    while (fread(&temp, sizeof(struct FileCell), 1, fp))
+    while (fread(&temp, sizeof(FileCell), 1, fp))
     {
         head = addToBeginning(head, temp);
     }
@@ -197,98 +192,94 @@ struct Node *loadFATFromDisk(const char *filename)
     return head;
 }
 
-// Not sure if this one is correct
+void saveDisk()
+{
+    FILE *f = fopen("Vdisk", "wb");
+
+    for (size_t i = 0; i < DISK_SIZE; i++)
+    {
+        fwrite(&disk[i], sizeof(char), 1, f);
+    }
+
+    fclose(f);
+}
+
+void loadDisk()
+{
+    FILE *f = fopen("Vdisk", "rb");
+
+    for (size_t i = 0; i < DISK_SIZE; i++)
+    {
+        char r;
+        fread(&r, sizeof(char), 1, f);
+        disk[i] = r;
+    }
+
+    fclose(f);
+}
+
 // formating the whole file system
-void formatFileSystem(struct Node *head)
+void formatFileSystem(Node *head)
 {
     printf("Formatting file system... all files deleted!\n");
     freeList(head);
 }
 
-////////////////////////////////////////////////
 /////////////// FILEs OPERATIONS ///////////////
 ////////////////////////////////////////////////
 
-// Writing into file
-int writeFileContent(const char *filename, const char *content)
+// Writing into file(from FAT into disk)
+int writeFileContent(Node *head, char *fileName, char *content)
 {
-
-    FILE *fp = fopen(filename, "w");
-    if (!fp)
+    Node *currentFile = getFileTable(head, fileName);
+    if (currentFile == NULL)
         return 0;
+    int location = currentFile->data.location;
+    int contentSize = strlen(content);
+    if (availbleFreeSpace(head) < contentSize)
+        return -1;
 
-    fprintf(fp, "%s", content);
-    fclose(fp);
+    currentFile->data.size = contentSize;
+
+    for (size_t i = 0; i < contentSize; i++)
+        disk[location + i] = content[i];
+
     return 1;
 }
 
 // appending to a file
-int appendToFile(const char *filename, const char *content)
+int appendToFile(char *filename, char *content)
 {
-
-    FILE *fp = fopen(filename, "a");
-    if (!fp)
-        return 0;
-
-    fprintf(fp, "%s", content);
-    fclose(fp);
     return 1;
 }
 
 // reading from a file
-int readFileContent(const char *filename)
+int readFileContent(Node *head, char *filename)
 {
-    FILE *fp = fopen(filename, "r");
-    if (!fp)
-        return 0;
+    // fopen(fp);
+    Node *currentFile = getFileTable(head, filename);
+    int headLocation = currentFile->data.location;
+    int size = currentFile->data.size;
 
-    size_t bufSize = 256; // buffer size
-    size_t len = 0;       // Everything we have read till now
-    char *buffer = malloc(bufSize);
+    char *buffer = malloc(sizeof(char) * size);
 
-    if (!buffer)
-    {
-        fclose(fp);
-        return 0;
-    }
+    for (size_t i = 0; i < size; i++)
+        buffer[i] = disk[headLocation + i];
 
-    int c;
-    while ((c = fgetc(fp)) != EOF)
-    {
+    buffer[size] = '\0'; // null terminate
 
-        if (len + 1 >= bufSize)
-        {
-            // if buffer is full make it double
-            bufSize *= 2;
-            char *temp = realloc(buffer, bufSize);
-
-            if (!temp)
-            {
-                free(buffer);
-                fclose(fp);
-                return 0;
-            }
-
-            buffer = temp;
-        }
-
-        buffer[len++] = (char)c;
-    }
-
-    buffer[len] = '\0'; // null terminate
-
-    printf("Content of %s:\n%s\n", filename, buffer);
+    printf("Content of '%s':\n%s\n", filename, buffer);
 
     free(buffer);
-    fclose(fp);
+    // fclose(fp);
     return 1;
 }
 
 // Function to free all nodes in the list
-void freeList(struct Node *head)
+void freeList(Node *head)
 {
-    struct Node *current = head;
-    struct Node *next;
+    Node *current = head;
+    Node *next;
 
     while (current != NULL)
     {
@@ -300,9 +291,9 @@ void freeList(struct Node *head)
 }
 
 // Helper function to print the list (for testing)
-void printList(struct Node *head)
+void printList(Node *head)
 {
-    struct Node *current = head;
+    Node *current = head;
     int count = 1;
 
     printf("File List:\n");
@@ -318,35 +309,17 @@ void printList(struct Node *head)
     printf("\n");
 }
 
-void testFileSystem()
-{
-    struct Node *head = malloc(sizeof(struct Node));
-    struct FileCell cell = {
-        .fileName = "testing file 1",
-        .location = 134,
-        .size = 25};
-
-    head->data = cell;
-    head->next = NULL;
-    printList(head);
-
-    deleteFile(head, "testing file 1");
-}
-
-////////////////////////////////////////////////
 /////////////// HELPER FUNCTIONS ///////////////
 ////////////////////////////////////////////////
 
 // Counting files
-int getFilesCount(struct Node *head)
+int getFilesCount(Node *head)
 {
-
     int count = 0;
-    struct Node *current = head;
+    Node *current = head;
 
     while (current != NULL)
     {
-
         count++;
         current = current->next;
     }
@@ -355,20 +328,18 @@ int getFilesCount(struct Node *head)
 }
 
 // Changing a name of a file
-int renameFile(struct Node *head, char *lastName, char *newName)
+int renameFile(Node *head, char *lastName, char *newName)
 {
-    struct Node *current = head;
+    Node *current = head;
     while (current != NULL)
     {
-
-        if (strcmp(current->data.fileName, lastName) == 0)
+        if (StrEqul(current->data.fileName, lastName))
         {
-
-            strncpy(current->data.fileName, newName, sizeof(current->data.fileName) - 1);
+            strncpy(current->data.fileName, newName, sizeof(newName) - 1);
+            printf("Changing last anem '%s' into new one: '%s'\n", lastName, newName);
             current->data.fileName[sizeof(current->data.fileName) - 1] = '\0'; // null terminate
             return 1;                                                          // success
         }
-
         current = current->next;
     }
 
@@ -376,22 +347,48 @@ int renameFile(struct Node *head, char *lastName, char *newName)
 }
 
 // Check if file exists
-int fileExists(struct Node *head, char *name)
+int fileExists(Node *head, char *name)
 {
     return searchFile(head, name) != -1;
 }
 
 // A full checkup I guess?
-void printFileSystemStats(struct Node *head, int size)
+void printFileSystemStats(Node *head)
 {
     int used = getTotalUsedSpace(head);
-    int free = findFreeSpace(head, size);
+    int free = availbleFreeSpace(head);
     int fileCount = getFilesCount(head);
 
     printf("=== File System Stats ===\n");
-    printf("Total space: %d bytes\n", size);
+    printf("Total space: %d bytes\n", DISK_SIZE);
     printf("Used space : %d bytes\n", used);
     printf("Free space : %d bytes\n", free);
     printf("Files count: %d\n", fileCount);
     printf("=========================\n");
+}
+
+
+//  -1 -->  can't allocate enough memmory
+
+int bootDisk()
+{
+    Node *head = malloc(sizeof(Node));
+    if (!head)
+        return -1;
+
+    //  loads the File Allocation Table (if not saved, initialize a new one)
+    head = loadFAT();
+
+    //  load the disk, (if not saved, initialize a new one)
+    loadDisk();
+
+    //  show the status
+    printList(head);
+
+
+    //  Save the file system(FAT + Disk) when we're done working with OS
+    
+    saveFAT(head);
+    saveDisk();
+    return 1;
 }

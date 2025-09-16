@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <vadefs.h>
 #include <math.h>
 
 // Enable In-Programm debuging, if the 'DEBUG_LOG' is True(1)
@@ -11,9 +12,9 @@ void DebugLog(const char *__format, ...)
     if (DEBUG_LOG){
         
         va_list args;
-        va_start(args, __format);
+        _crt_va_start(args, __format);
         vprintf(__format, args);
-        va_end(args);
+        _crt_va_end(args);
     }
 }
 
