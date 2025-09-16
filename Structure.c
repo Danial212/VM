@@ -17,8 +17,8 @@ int Init_Data_Structures()
 //  Saving The Stack into the Ram, starts at the 'startLocation' location of the RAM
 //  and Ends at the 'startLocation' + 'copacity'
 
-const int copacity = 24;
-const int startLocation = 1000;
+const int copacity = 96;
+const int startLocation = 4000;
 
 int stackIndex = 0;
 
@@ -27,7 +27,7 @@ static int Stack_Initialize()
     //  'copacity' + 'startLocation' must be less than RAM's size
     if (startLocation + copacity > RAM_SIZE)
     {
-        printf("E.24\nStack Over RAM");
+        printf("E.96\nStack Over RAM");
         exit(EXIT_FAILURE);
     }
 }
@@ -85,6 +85,7 @@ void StackManitoring()
         int spaceLangth = 5 - int_length(number);
         int L1 = spaceLangth / 2;
         int L2 = spaceLangth - L1;
+        printf("|");
         for (size_t j = 0; j < L1; j++)
             printf(" ");
         printf("%d", number);
@@ -107,10 +108,10 @@ int returnStack[100];
 int returnStackIndex = 0;
 
 /// @param address The current line you're calling a function
-/// @return 0 --> StackOverFlow, 1 --> Success FFucK @ilia212
+/// @return 0 --> StackOverFlow, 1 --> Success
 int Push_ReturnAddress(int address)
 {
-    if (returnStackIndex == 100)
+    if (returnStackIndex >= 100)
         return 0;
     returnStack[returnStackIndex++] = address;
     return 1;
@@ -124,6 +125,12 @@ int Return_Stack_IsEmpty()
 int Pop_ReturnAddress()
 {
     // if (returnStackIndex == 0) return -1;
+    if (returnStackIndex - 1 < 0){
+
+        printf("Error: Stack is empty");
+        exit(EXIT_FAILURE);
+    }
+
     return returnStack[--returnStackIndex];
 }
 
@@ -138,6 +145,7 @@ void ReturnStackManitoring()
         int spaceLangth = 5 - int_length(number);
         int L1 = spaceLangth / 2;
         int L2 = spaceLangth - L1;
+        printf("|");
         for (size_t j = 0; j < L1; j++)
             printf(" ");
         printf("%d", number);
@@ -299,7 +307,7 @@ void closeFileFromList(char *name)
 void filesList_Manitoring()
 {
     for (size_t i = 0; i < filesListCount; i++)
-        printf("%d)%s [%s]\n", i + 1, filesList[i].name, (filesList[i].file == NULL) ? "Opened" : "Closed");
+        printf("%d)%s [%s]\n", i + 1, filesList[i].name, (filesList[i].file == NULL) ? "Closed" : "Opened");
     printf("---------------------------------\n");
 }
 
@@ -319,14 +327,16 @@ FileStruct *findFileFromList(char *name)
 PCB PCB_Stack[100];
 int PCB_StackIndex = 0;
 
-/// @return 0 --> StackOverFlow, 1 --> Success FFucK @ilia212
+/// @return 0 --> StackOverFlow, 1 --> Success
 int PCB_stack_push(PCB targetPCB)
 {
     printf("----------------------------------\n");
     printf("name:%s, line:%d, line count:%d, \n ", targetPCB.blockName, targetPCB.currentLine, targetPCB.linesCount);
     printf("----------------------------------\n");
-    if (PCB_StackIndex == 100)
+    if (PCB_StackIndex >= 100){
+        DebugLog("Error: PCB_Stack overflow");
         return 0;
+    }
     PCB_Stack[PCB_StackIndex++] = targetPCB;
     return 1;
 }
@@ -338,10 +348,12 @@ int PCB_stack_isEmpty()
 
 PCB PCB_stack_pop()
 {
-    if (PCB_StackIndex < 0)
-        exit(1);
-    PCB_StackIndex--;
-    return PCB_Stack[PCB_StackIndex];
+    if (PCB_stack_isEmpty){
+
+        DebugLog("Error: Stack is empty");
+        exit(EXIT_FAILURE);
+    }
+    return PCB_Stack[--PCB_StackIndex];
 }
 
 void PCB_stack_Manitoring()
@@ -349,15 +361,18 @@ void PCB_stack_Manitoring()
     printf("####################### PCB STACK #######################\n|");
     for (size_t i = 0; i < PCB_StackIndex; i++)
     {
-        char *name = PCB_Stack[2].blockName;
-        int number = i + 1, size = int_length(number) + 2 + strlen(name);
+        char *name = PCB_Stack[i].blockName;
+        int number = i + 1;
+        int size = int_length(number) + 2 + strlen(name);
 
         printf("%d) %s", number, name);
-        for (size_t j = 0; j < size; j++)
+        for (size_t j = 0; j < (20-size); j++)
             printf(" ");
 
-        if ((i + 1) % 10 == 0)
+        if (number % 5 == 0){
+            
             printf("\n");
+        }
         printf("|");
     }
 
