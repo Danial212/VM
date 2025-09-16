@@ -49,8 +49,8 @@ int main(int argc, char const *argv[])
     // StackManitoring();
     // printf("\n");
     // LabelsManitoring();
-    printf("\n");
-    RamManitoring();
+    // printf("\n");
+    // RamManitoring();
 }
 
 
