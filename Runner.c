@@ -21,7 +21,7 @@ int main(int argc, char const *argv[])
         
     currentProcess.blockName = "Init Process";
 
-    FileReading("shell.txt");
+    FileReading("TestShell.txt");
     LabelListing();
     FunctionListing();
     Init_Data_Structures();
@@ -53,7 +53,6 @@ int main(int argc, char const *argv[])
     // RamManitoring();
 }
 
-
 //  Open and read all the codes inside the target file
 void FileReading(char *fileName)
 {
@@ -62,7 +61,7 @@ void FileReading(char *fileName)
     if (file == NULL)
         DebugLog("The target file to read the code couldn't be read");
 
-    int FileLines = 100;
+    int FileLines = 400;
     for (size_t i = 0; i < FileLines; i++)
     {
         currentProcess.linesCount = i + 1;
@@ -71,8 +70,9 @@ void FileReading(char *fileName)
         int canContinue = InputReciver(currentProcess.lines[i].tokens, MAX_Command_Tokens, file);
         if (canContinue == -1)
             break;
-        
-        if ((i+1) >= FileLines) FileLines = FileLines*2;
+
+        if ((i + 1) >= FileLines)
+            FileLines = FileLines * 2;
     }
     fclose(file);
 }

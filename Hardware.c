@@ -54,7 +54,7 @@ int *GetRamPointer(int ramLocation)
 {
     if (ramLocation < 0 || ramLocation >= RAM_SPACE) {
         
-        fwrite("Error in getting ram location [%d]", ramLocation, 40, stderr);
+        printf("Error in getting ram location [%d]", ramLocation);
         return NULL;
     }
     
