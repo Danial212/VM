@@ -1,0 +1,297 @@
+OUT R6
+
+
+LOAD R1 1
+LOAD R4 1
+
+LABEL chk
+    LOAD R3 #300
+    LOAD R2 #15
+    LOAD R5 300
+    LOAD R6 15
+
+    IF R4 == 1 GOTO one
+    
+    LOAD R2 #20
+    LOAD R6 20
+    IF R4 == 2 GOTO two
+    
+    LOAD R2 #25
+    LOAD R6 25
+    IF R4 == 3 GOTO three
+    
+    LOAD R2 #30
+    LOAD R6 30
+    IF R4 == 4 GOTO four
+    
+    LOAD R2 #35
+    LOAD R6 35
+    IF R4 == 5 GOTO five
+    
+    LOAD R2 #40
+    LOAD R6 40
+    IF R4 == 6 GOTO six
+    
+    LOAD R2 #45
+    LOAD R6 45
+    IF R4 == 7 GOTO seven
+    
+    LOAD R2 #50
+    LOAD R6 50
+    IF R4 == 8 GOTO eight
+
+    IF R4 == 9 GOTO nine
+
+FUNC CHECKWORD
+    
+    IF R3 != R2
+        ADD R4 R1
+        GOTO chk
+    
+    ADD R5 R1
+    ADD R6 R1
+    LOAD R2 [R5]
+    LOAD R3 [R6]
+    
+    IF R3 != R2
+        ADD R4 R1
+        GOTO chk
+
+    ADD R5 R1
+    ADD R6 R1
+    LOAD R2 [R5]
+    LOAD R3 [R6]
+
+    IF R3 != R2
+        ADD R4 R1
+        GOTO chk
+    
+    ADD R5 R1
+    ADD R6 R1
+    LOAD R2 [R5]
+    LOAD R3 [R6]
+
+ENDF
+
+
+FUNC CREATE
+    $create file
+
+ENDF
+
+FUNC WRITE
+    $write into file
+
+ENDF
+
+FUNC READ
+    $read file content
+
+ENDF
+
+FUNC DELETE
+    $delete file
+
+ENDF
+
+FUNC LIST
+    $show files
+    
+ENDF
+
+fUNC STATS
+    $Show file system stats
+
+ENDF
+
+FUNC HELP
+    .temp1>CRE <name> <size>     - Create file
+    OUT -s ..temp1
+    .temp2>WRI <name>            - Write into file
+    OUT -s ..temp2
+    .temp3>R <name>              - Read file content
+    OUT -s ..temp3
+    .temp4>DEL <name>            - Delete file
+    OUT -s ..temp4
+    .temp5>LST                   - Show files
+    OUT -s ..temp5
+    .temp6>STT                   - Show FS stats
+    OUT -s ..temp6
+    .trmp7>HLP                   - Show commands\n
+    OUT -s ..temp7
+    .temp8>EXT                   - Quit shell
+    OUT -s ..temp8
+ENDF
+
+FUNC EXIT
+    .end>Exiting program...
+    OUT -s .end
+    GOTO end
+ENDF
+
+
+.wellcome>Wellcome! Shell is loading now...
+OUT -s ..wellcome
+
+$ loading "CRE" to ram in ascii
+LOAD #15 67
+LOAD #16 82
+LOAD #17 69
+LOAD #18 -1
+
+$ loading "HLP" to ram in ascii
+LOAD #20 72
+LOAD #21 76
+LOAD #22 80
+LOAD #23 -1
+
+$ loading "WRI" to ram in ascii
+LOAD #25 87
+LOAD #26 82
+LOAD #27 73
+LOAD #28 -1
+
+$ loading "R" to ram in ascii
+LOAD #30 82
+LOAD #31 -1
+
+$ loading "DEL" to ram in ascii
+LOAD #35 68
+LOAD #36 69
+LOAD #37 76
+LOAD #38 -1
+
+$ loading "LST" to ram in ascii
+LOAD #40 76
+LOAD #41 83
+LOAD #42 84
+LOAD #43 -1
+
+$ loading "STT" to ram in ascii
+LOAD #45 83
+LOAD #46 84
+LOAD #47 84
+LOAD #48 -1
+
+$ loading "EXT" to ram in ascii
+LOAD #50 69
+LOAD #51 88
+LOAD #52 84
+LOAD #53 -1
+
+$ getting data from input
+INP 10 #300
+
+LABEL end
+    .outro>Goodbye
+    OUT -s ..Goodbye
+
+$ check if its "CRE"
+LABEL one
+    
+    CALL CHECKWORD
+
+    IF R2 == -1 GOTO line1
+        LABEL line1
+            IF R3 == -1 CALL CREATE
+
+    ADD R4 R1
+    GOTO chk
+
+$ check if its "WRI"
+LABEL two
+
+    CALL CHECKWORD
+    
+    IF R2 == -1 GOTO line2
+        LABEL line2
+            IF R3 == -1 CALL WRITE
+
+    ADD R4 R1
+    GOTO chk
+
+$ check if its "R"
+LABEL three
+
+    IF R3 != R2
+        ADD R4 R1
+        GOTO chk
+    
+    ADD R5 R1
+    ADD R6 R1
+    LOAD R2 [R5]
+    LOAD R3 [R6]
+
+    IF R2 == -1 GOTO line3
+        LABEL line3
+            IF R3 == -1 CALL READ
+
+    ADD R4 R1
+    GOTO chk
+
+$ check if its "DEL"
+LABEL four
+
+    CALL CHECKWORD
+    
+    IF R2 == -1 GOTO line2
+        LABEL line2
+            IF R3 == -1 CALL DELETE
+
+    ADD R4 R1
+    GOTO chk
+
+$ check if its "LST"
+LABEL five
+
+    CALL CHECKWORD
+    
+    IF R2 == -1 GOTO line2
+        LABEL line2
+            IF R3 == -1 CALL LIST
+
+    ADD R4 R1
+    GOTO chk
+
+$ check if its "STT"
+LABEL six
+
+    CALL CHECKWORD
+    
+    IF R2 == -1 GOTO line2
+        LABEL line2
+            IF R3 == -1 CALL STATS
+
+    ADD R4 R1
+    GOTO chk
+
+$ check if its "HLP"
+LABEL seven
+
+    CALL CHECKWORD
+    
+    IF R2 == -1 GOTO line2
+        LABEL line2
+            IF R3 == -1 CALL HELP
+
+    ADD R4 R1
+    GOTO chk
+
+$ check if its "EXT"
+LABEL eight
+
+    CALL CHECKWORD
+    
+    IF R2 == -1 GOTO line2
+        LABEL line2
+            IF R3 == -1 CALL EXIT
+
+    ADD R4 R1
+    GOTO chk
+
+$ if its something else
+LABEL nine
+    .s>Invalid input. Please use "HLP" command.
+    OUT -s ..s
+
+
