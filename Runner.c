@@ -4,6 +4,7 @@
 #include "interpreter.h"
 #include "GlobalVariables.h"
 #include "FileSystem.h"
+#include "SystemCalls.h"
 #include "Runner.h"
 #include <string.h>
 #include <stdint.h>
@@ -16,9 +17,11 @@ PCB currentProcess;
 int main(int argc, char const *argv[])
 {
     InitializeHardWare();
+    if (!bootDisk())
+        printf("Can't load/create disk and file allocation table");
     currentProcess.blockName = "Init Process";
 
-    FileReading("calc.txt");
+    FileReading("shell.txt");
     LabelListing();
     FunctionListing();
     Init_Data_Structures();
@@ -32,6 +35,8 @@ int main(int argc, char const *argv[])
         else
             break;
     }
+
+    save_Disk_FAT();
 
     // Manitoring data structures, hardware, ...
     // printf("\n");
@@ -481,6 +486,10 @@ void RunPussembler(char **tokens)
         currentProcess = pcb;
         //  Loading the pussembly instructions from the file into our current PCB
         FileReading(tokens[1]);
+    }
+    else if (StrEqul(tokens[0], "SYSCALL"))
+    {
+        handleSystemCalls();
     }
     else
         return;

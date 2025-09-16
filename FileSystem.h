@@ -22,52 +22,54 @@ typedef struct Node
     struct Node *next;
 } Node;
 
-
 extern char disk[DISK_SIZE];
-
-
+extern Node *head;
 
 //  Function to add a new node at the beginning of the list
-Node *addToBeginning(Node *head, FileCell fileData);
+int addToBeginning(FileCell fileData);
 //  Function to free all nodes in the list
-void freeList(Node *head);
+void freeList();
 //  Helper function to print the list (for testing)
-void printList(Node *head);
+void printList();
 
 /////////////// BASIC FILE OPERATIONS ///////////////
-Node *addFile(Node *head, char *name, int location, int size);
-Node *deleteFile(Node *head, char *name);
-void defragmentation(Node *head);
-int searchFile(Node *head, char *name);
-Node *getFileTable(Node *head, char *name);
-
+int addFile(char *name, int location, int size);
+void deleteFile(char *name);
+void defragmentation();
+int searchFile(char *name);
+Node *getFileTable(char *name);
 
 /////////////// BOOT-LEVEL FILE SYSTEM ///////////////
 // Load/Save FAT to/from disk
 Node *loadFAT();
-int saveFAT(Node *head);
-void formatFileSystem(Node *head);
+int saveFAT();
+void formatFileSystem();
 
 /////////////// LOW-LEVEL FILE OPERATIONS ///////////////
 //  First free space
-int availbleFreeSpace(Node *head);
-int getTotalUsedSpace(Node *head);
+int availbleFreeSpace();
+int getTotalUsedSpace();
 
 /////////////// FILEs OPERATIONS ///////////////
 // Read/Write actual file content
-int readFileContent(Node *head, char *filename);
-int writeFileContent(Node *head, char *filename, char *content);
+int readFileContent(char *filename);
+int writeFileContent(char *filename, char *content);
 int appendToFile(char *filename, char *content);
+
+/////////////// USER_LEVEL File Operatoins ///////////////
+int createFile(char *fileName, int size);
 
 /////////////// HELPER FUNCTIONS ///////////////
 //  FAT's size (all the files we have)
-int getFilesCount(Node *head);
+int getFilesCount();
 //  Rename given files's name
-int renameFile(Node *head, char *lastname, char *newName);
-void printFileSystemStats(Node *head);
+int renameFile(char *lastname, char *newName);
+void printFileSystemStats();
 //  Check if the given file exists
-int fileExists(Node *head, char *name);
+int fileExists(char *name);
+int fisrtUsableBlock(int size);
 
 int bootDisk();
+void save_Disk_FAT();
 
 #endif

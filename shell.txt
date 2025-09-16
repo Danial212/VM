@@ -1,0 +1,21 @@
+.booting1>### Setting UP Hardware ###
+.booting2>### Setting UP Disk ###
+.booting3>### Setting UP RAM ###
+.booting4>### Setting UP Register ###
+
+
+OUT -s ..booting1
+OUT -s ..booting2
+OUT -s ..booting3
+OUT -s ..booting4
+
+INP 20 #100
+
+OUT -s #100
+
+
+LOAD R1 1
+LOAD R2 100
+LOAD R3 50
+SYSCALL
+
