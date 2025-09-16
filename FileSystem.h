@@ -34,14 +34,14 @@ void printList();
 
 /////////////// BASIC FILE OPERATIONS ///////////////
 int addFile(char *name, int location, int size);
-void deleteFile(char *name);
+int deleteFile(char *name);
 void defragmentation();
 int searchFile(char *name);
 Node *getFileTable(char *name);
 
 /////////////// BOOT-LEVEL FILE SYSTEM ///////////////
 // Load/Save FAT to/from disk
-Node *loadFAT();
+void loadFAT();
 int saveFAT();
 void formatFileSystem();
 
@@ -58,6 +58,7 @@ int appendToFile(char *filename, char *content);
 
 /////////////// USER_LEVEL File Operatoins ///////////////
 int createFile(char *fileName, int size);
+char getDiskChar(int index);
 
 /////////////// HELPER FUNCTIONS ///////////////
 //  FAT's size (all the files we have)

@@ -30,8 +30,6 @@ int addToBeginning(FileCell fileData)
 
     // set new node as the new head
     head = newNode;
-
-    save_Disk_FAT();
     return 1;
 }
 
@@ -53,7 +51,7 @@ int addFile(char *name, int location, int size)
 }
 
 // Delete a file using a name
-void deleteFile(char *name)
+int deleteFile(char *name)
 {
     Node *current = head;
     Node *prev = NULL;
@@ -67,22 +65,22 @@ void deleteFile(char *name)
             {
                 Node *newHead = current->next;
                 free(current);
-                head = newHead;
-                return; // Return new head
+                head = newHead; // head changes
             }
             else
             {
                 prev->next = current->next;
                 free(current);
-                return; // Head stays the same
+                // Head stays the same
             }
+            return 1;
         }
 
         prev = current;
         current = current->next;
     }
 
-    printf("File '%s' not found!\n", name);
+    return -1;
 }
 
 void defragmentation()
@@ -170,28 +168,31 @@ int saveFAT()
 }
 
 // Load FAT from disk
-Node *loadFAT()
+void loadFAT()
 {
     FILE *fp = fopen(FAT_NAME, "rb");
     if (!fp)
-        return NULL;
+        return;
 
-    Node *loadedHead = NULL;
-    FileCell temp;
+    FileCell temp; // Just use a local variable instead
 
     while (fread(&temp, sizeof(FileCell), 1, fp))
+    {
+        printf("Loaded: %s, size: %d bytes\n", temp.fileName, temp.size);
         addToBeginning(temp);
+    }
 
     fclose(fp);
-    return loadedHead;
 }
 
 void saveDisk()
 {
     FILE *f = fopen("Vdisk", "wb");
-
     for (size_t i = 0; i < DISK_SIZE; i++)
+    {
+        char r = disk[i];
         fwrite(&disk[i], sizeof(char), 1, f);
+    }
 
     fclose(f);
 }
@@ -207,6 +208,7 @@ void loadDisk()
     {
         char r;
         fread(&r, sizeof(char), 1, f);
+        // printf("%c|", r == 0 ? ' ' : r);
         disk[i] = r;
     }
 
@@ -311,7 +313,11 @@ int createFile(char *fileName, int size)
     if (firstAddress < 0)
         return 0; //    Not enough Space for the given size
 
+    DebugLog("making file %s at address %d in size of %d", fileName, firstAddress, size);
     return addFile(fileName, firstAddress, size);
+}
+char getDiskChar(int index){
+    return disk[index];
 }
 
 /////////////// HELPER FUNCTIONS ///////////////
@@ -372,25 +378,70 @@ void printFileSystemStats()
 
 int fisrtUsableBlock(int size)
 {
-    /// must be completed
+    if (head == NULL)
+    {
+        return 0; // First file starts at position 0
+    }
+
+    // Sort files by location (simple bubble sort for small lists)
+    // Create array of used blocks
+    int usedBlocks[getFilesCount() * 2]; // Start and end positions
+    int blockCount = 0;
+
+    Node *current = head;
+    while (current != NULL)
+    {
+        usedBlocks[blockCount++] = current->data.location;
+        usedBlocks[blockCount++] = current->data.location + current->data.size;
+        current = current->next;
+    }
+
+    // Sort the blocks
+    for (int i = 0; i < blockCount - 1; i++)
+    {
+        for (int j = 0; j < blockCount - i - 1; j++)
+        {
+            if (usedBlocks[j] > usedBlocks[j + 1])
+            {
+                int temp = usedBlocks[j];
+                usedBlocks[j] = usedBlocks[j + 1];
+                usedBlocks[j + 1] = temp;
+            }
+        }
+    }
+
+    // Find first gap that fits the size
+    int lastEnd = 0;
+    for (int i = 0; i < blockCount; i += 2)
+    {
+        if (usedBlocks[i] - lastEnd >= size)
+        {
+            return lastEnd;
+        }
+        lastEnd = usedBlocks[i + 1];
+    }
+
+    // Check if there's space at the end
+    if (DISK_SIZE - lastEnd >= size)
+    {
+        return lastEnd;
+    }
+
+    return -1; // No space available
 }
 
 //  -1 -->  can't allocate enough memmory
 int bootDisk()
 {
-    head = malloc(sizeof(Node));
-    if (!head)
-        return -1;
-
+    head = NULL;
     //  loads the File Allocation Table (if not saved, initialize a new one)
-    head = loadFAT();
+    printf("Loding File Allocation Table ... \n");
+    loadFAT();
     //  load the disk, (if not saved, initialize a new one)
+    printf("Loding Disk values ... \n");
     loadDisk();
     //  show the status
     printList();
-
-    while (head != NULL)
-        printf("--> %s \n", head->data.fileName);
 
     return 1;
 }

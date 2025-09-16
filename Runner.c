@@ -17,8 +17,8 @@ PCB currentProcess;
 int main(int argc, char const *argv[])
 {
     InitializeHardWare();
-    if (!bootDisk())
-        printf("Can't load/create disk and file allocation table");
+    bootDisk();
+        
     currentProcess.blockName = "Init Process";
 
     FileReading("TestShell.txt");
@@ -49,8 +49,8 @@ int main(int argc, char const *argv[])
     // StackManitoring();
     // printf("\n");
     // LabelsManitoring();
-    // printf("\n");
-    // RamManitoring();
+    printf("\n");
+    RamManitoring();
 }
 
 //  Open and read all the codes inside the target file
