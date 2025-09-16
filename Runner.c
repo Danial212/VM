@@ -53,15 +53,17 @@ int main(int argc, char const *argv[])
     // RamManitoring();
 }
 
+
 //  Open and read all the codes inside the target file
-void FileReading(char *fileNmae)
+void FileReading(char *fileName)
 {
-    file = fopen(fileNmae, "r");
+    file = fopen(fileName, "r");
 
     if (file == NULL)
         DebugLog("The target file to read the code couldn't be read");
 
-    for (size_t i = 0; i < 100; i++)
+    int FileLines = 100;
+    for (size_t i = 0; i < FileLines; i++)
     {
         currentProcess.linesCount = i + 1;
         currentProcess.lines[i].tokens = malloc(MAX_Command_Tokens * sizeof(char *));
@@ -69,6 +71,8 @@ void FileReading(char *fileNmae)
         int canContinue = InputReciver(currentProcess.lines[i].tokens, MAX_Command_Tokens, file);
         if (canContinue == -1)
             break;
+        
+        if ((i+1) >= FileLines) FileLines = FileLines*2;
     }
     fclose(file);
 }
@@ -145,7 +149,7 @@ int InputReciver(char **buffer, int count, FILE *inputStream)
         {
             if (tokenIndex == 0 && charIndex == 0)
             {
-                while ((c = fgetc(inputStream)) != '\n')
+                while ((c = fgetc(inputStream)) != '\n' && c != EOF)
                     if (c != ' ')
                         break;
             }
@@ -153,7 +157,7 @@ int InputReciver(char **buffer, int count, FILE *inputStream)
             {
                 if (!(tokenIndex == 0 && charIndex == 0))
                     buffer[tokenIndex][charIndex] = '\0';
-                while ((c = fgetc(inputStream)) != '\n')
+                while ((c = fgetc(inputStream)) != '\n' && c != EOF)
                     if (c != ' ')
                     {
                         tokenIndex++;
