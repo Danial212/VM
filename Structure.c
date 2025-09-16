@@ -319,6 +319,7 @@ FileStruct *findFileFromList(char *name)
 
     //  Coudln't find the specific file, you must forget to add it to the list,
     //  Or it doesn't exist at all
+    DebugLog("Error: File %s not found\n", name);
     return NULL;
 }
 
