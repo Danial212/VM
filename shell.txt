@@ -60,7 +60,7 @@ FUNC help_func
     .command5> 5. write --> write into a file
     .command6> 6. help --> show all commands
     .command7> 7. rename --> renames a file
-    .command8> 8. exists --> check if a file exists
+    .command8> 8. exist --> check if a file exists
     .command9> 9. run --> runs a .txt executable file
     .command10> 10. version --> show OS Version
     .command11> 11. copy --> copy a file's content into another file
