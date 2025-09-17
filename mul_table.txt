@@ -1,0 +1,33 @@
+.welcome>Welcome to the 1-to-10 multiplication table program
+OUT -s ..welcome
+
+.input>Please enter a number to get its multiplication table:
+OUT -s .input
+
+LOAD R4 1
+INP R1
+LOAD R2 1
+LOAD R3 0
+.mul> * 
+.eq> = 
+.line>-------
+
+LABEL loop
+    ADD R3 R4
+    LOAD R2 R3
+    MUL R2 R1
+    OUT -s ..line
+    OUT R3
+    OUT -s .mul
+    OUT R1
+    OUT -s .eq
+    OUT R2
+
+    IF R3 == 10 GOTO end
+
+GOTO loop
+
+LABEL end
+    OUT -s ..line
+    .done>Program is finished.
+    OUT -s ..done
