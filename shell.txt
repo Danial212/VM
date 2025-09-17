@@ -1,21 +1,415 @@
+
 .booting1>### Setting UP Hardware ###
 .booting2>### Setting UP Disk ###
 .booting3>### Setting UP RAM ###
 .booting4>### Setting UP Register ###
 
+.OSline1>████████████████████████████████████████████████████████████
+.OSline2>██      OVM OPERATING SYSTEM - Version 1.0                ██
+.OSline3>████████████████████████████████████████████████████████████
 
 OUT -s ..booting1
 OUT -s ..booting2
 OUT -s ..booting3
 OUT -s ..booting4
 
-INP 20 #100
 
-OUT -s #100
+OUT -s ..OSline1
+OUT -s ..OSline2
+OUT -s ..OSline3
 
+FUNC str_cmp
+    LOAD R9 1
+    LABEL compare_loop
+    LOAD R3 [R1]
+    LOAD R4 [R2]
 
-LOAD R1 1
-LOAD R2 100
-LOAD R3 50
-SYSCALL
+    IF R3 == -1 GOTO check_end
+    IF R4 == -1 GOTO not_equal
+    IF R3 != R4 GOTO not_equal
 
+    ADD R1 R9
+    ADD R2 R9
+
+    GOTO compare_loop
+
+    LABEL check_end
+    IF R4 == -1 GOTO equal
+
+    LABEL not_equal
+    PUSH 0
+    RET
+
+    LABEL equal
+    PUSH 1
+    RET
+ENDF
+
+FUNC ready
+    LOAD R1 100
+    INP 20 [R1]        $ Get user input at RAM 100
+    RET
+ENDF
+
+$ Empty command functions
+FUNC help_func
+    .commands> === Aviliable Commands ===
+    .command1> 1‍.  Create --> create a file
+    .command2> 2‍.  Delete --> delete a file
+    .command3> 3‍.  List --> list all files
+    .command4> 4‍.  Read --> read from a file
+    .command5> 5‍.  Write --> write into a file
+    .command6> 6‍.  Help --> show all commands
+    .command7> 7‍.  Rename --> renames a file
+    .command8> 8‍.  Exists --> check if a file exists
+    .command9> 9‍.  Run --> runs a .txt executable file
+    .command10> 10‍.  Version --> show OS Version
+    .command11> 11‍.  Copy --> copy a file's content into another file
+    OUT -s ..commands
+
+    OUT -s ..command1
+    OUT -s ..command2
+    OUT -s ..command3
+    OUT -s ..command4
+    OUT -s ..command5
+    OUT -s ..command6
+    OUT -s ..command7
+    OUT -s ..command8
+    OUT -s ..command9
+    OUT -s ..command10
+    OUT -s ..command11
+ENDF
+
+$ Complete Shell Functions - Using Your System Calls!
+
+FUNC create_func
+    $ Get filename from user input parsing (assume it's at #700)
+    $ Get size from user input parsing (assume it's at #800, default to 1024 if empty)
+    
+    $ Check if size argument exists, otherwise use default
+    LOAD R5 #800                  $ Check second argument
+    LOAD R3 1024                  $ Default size
+    IF [#800] != 0 LOAD R3 [#800] $ Use provided size if exists
+    
+    $ Setup system call registers
+    LOAD R1 1                     $ System call #1 (CREATE_FILE)
+    LOAD R2 #700                  $ R2 = filename address
+    $ R3 already has size (either default 1024 or user provided)
+    
+    SYSCALL                       $ Execute create file system call
+    
+    $ Check result and show appropriate message
+    IF R0 == 1 GOTO Create_Success
+    GOTO Create_Error
+    
+    LABEL Create_Success
+        OUT -s .create_success    $ "✅ File created successfully!"
+        RET
+    
+    LABEL Create_Error
+        OUT -s .create_error      $ "❌ Failed to create file!"
+        RET
+ENDF
+
+FUNC delete_func
+    OUT -s .delete                $ Show what we're doing
+    
+    $ Setup system call registers  
+    LOAD R1 2                     $ System call #2 (DELETE_FILE)
+    LOAD R2 #700                  $ R2 = filename address (from parsed input)
+    
+    SYSCALL                       $ Execute delete file system call
+    
+    $ Check result and show message
+    IF R0 == 1 GOTO Delete_Success
+    GOTO Delete_Error
+    
+    LABEL Delete_Success
+        OUT -s .delete_success    $ "✅ File deleted successfully!"
+        RET
+    
+    LABEL Delete_Error
+        OUT -s .delete_error      $ "❌ File not found or couldn't be deleted!"
+        RET
+ENDF
+
+FUNC read_func
+    OUT -s ..read                 $ Show we're reading
+    
+    $ Setup system call registers
+    LOAD R1 3                     $ System call #3 (READ_FILE)
+    LOAD R2 #700                  $ R2 = filename address
+    LOAD R3 #2000                 $ R3 = buffer address to store file content
+    
+    SYSCALL                       $ Execute read file system call
+    
+    $ Check if file was read successfully
+    IF R0 > 0 GOTO Read_Success
+    GOTO Read_Error
+    
+    LABEL Read_Success
+        OUT -s .read_header       $ "📖 File contents:"
+        OUT -s .separator         $ "=================================="
+        OUT -s #2000              $ Print the actual file content
+        OUT -s .separator         $ "=================================="
+        OUT -s .read_success      $ "✅ File read successfully!"
+        RET
+    
+    LABEL Read_Error
+        OUT -s .read_error        $ "❌ File not found or couldn't be read!"
+        RET
+ENDF
+
+FUNC write_func
+    OUT -s ..write                $ Show we're in write mode
+    OUT -s .write_prompt          $ "Enter content to write:"
+    
+    $ Get content from user
+    INP 500 #2000                 $ Get up to 500 characters, store at #2000
+    
+    $ Setup system call registers
+    LOAD R1 4                     $ System call #4 (WRITE_FILE)
+    LOAD R2 #700                  $ R2 = filename address
+    LOAD R3 #2000                 $ R3 = content address (what user typed)
+    
+    SYSCALL                       $ Execute write file system call
+    
+    $ Check result
+    IF R0 > 0 GOTO Write_Success
+    GOTO Write_Error
+    
+    LABEL Write_Success
+        OUT -s .write_success     $ "✅ Content written to file successfully!"
+        OUT R0                    $ Show number of bytes written
+        OUT -s .bytes_written     $ " bytes written"
+        RET
+    
+    LABEL Write_Error
+        OUT -s .write_error       $ "❌ Failed to write to file!"
+        RET
+ENDF
+
+FUNC rename_func
+    OUT -s ..rename               $ Show we're renaming
+    
+    $ Setup system call registers
+    LOAD R1 7                     $ System call #7 (RENAME_FILE)
+    LOAD R2 #700                  $ R2 = old filename address (first argument)
+    LOAD R3 #800                  $ R3 = new filename address (second argument)
+    
+    SYSCALL                       $ Execute rename file system call
+    
+    $ Check result
+    IF R0 == 1 GOTO Rename_Success
+    GOTO Rename_Error
+    
+    LABEL Rename_Success
+        OUT -s .rename_success    $ "✅ File renamed successfully!"
+        OUT -s .from              $ "From: "
+        OUT -s #700               $ Show old name
+        OUT -s .to                $ " To: "
+        OUT -s #800               $ Show new name
+        RET
+    
+    LABEL Rename_Error
+        OUT -s .rename_error      $ "❌ Failed to rename file!"
+        RET
+ENDF
+
+FUNC list_func
+    OUT -s ..list                 $ Show we're listing files
+    OUT -s .list_header          $ "📁 File System Contents:"
+    OUT -s .separator            $ "========================"
+    
+    $ Setup system call registers
+    LOAD R1 5                     $ System call #5 (LIST_FILES)
+    $ No additional parameters needed for list
+    
+    SYSCALL                       $ Execute list files system call
+    
+    $ The system call will print the file list automatically
+    $ R0 contains the number of files found
+    
+    OUT -s .separator            $ "========================"
+    OUT -s .total_files          $ "Total files: "
+    OUT R0                       $ Print number of files
+ENDF
+
+FUNC exist_func
+    OUT -s ..exist               $ Show we're checking existence
+    
+    $ Setup system call registers
+    LOAD R1 6                     $ System call #6 (FILE_EXISTS)
+    LOAD R2 #700                  $ R2 = filename address
+    
+    SYSCALL                       $ Execute file exists system call
+    
+    $ Check result
+    IF R0 == 1 GOTO File_Exists
+    GOTO File_Not_Exists
+    
+    LABEL File_Exists
+        OUT -s .file_exists       $ "✅ File exists!"
+        OUT -s .filename_is       $ "Filename: "
+        OUT -s #700               $ Show the filename
+        RET
+    
+    LABEL File_Not_Exists
+        OUT -s .file_not_exists   $ "❌ File does not exist!"
+        OUT -s .filename_is       $ "Filename: "
+        OUT -s #700               $ Show the filename that doesn't exist
+        RET
+ENDF
+
+$ ============================================================================
+$ STRING CONSTANTS FOR MESSAGES
+$ ============================================================================
+
+$ Success messages
+.create_success>✅ File created successfully!
+.delete_success>✅ File deleted successfully!
+.read_success>✅ File read successfully!
+.write_success>✅ Content written to file successfully!
+.rename_success>✅ File renamed successfully!
+.file_exists>✅ File exists!
+
+$ Error messages  
+.create_error>❌ Failed to create file!
+.delete_error>❌ File not found or couldn't be deleted!
+.read_error>❌ File not found or couldn't be read!
+.write_error>❌ Failed to write to file!
+.rename_error>❌ Failed to rename file!
+.file_not_exists>❌ File does not exist!
+
+$ Prompts and headers
+.write_prompt>📝 Enter content to write (press Enter when done):
+.read_header>📖 File contents:
+.list_header>📁 File System Contents:
+.separator>=================================
+.total_files>Total files: 
+.bytes_written> bytes written
+.from>From: 
+.to> → To: 
+.filename_is>Filename: 
+
+$ Usage messages (for error cases)
+.usage_create>Usage: create <filename> [size]
+.usage_delete>Usage: delete <filename>  
+.usage_read>Usage: read <filename>
+.usage_write>Usage: write <filename>
+.usage_rename>Usage: rename <oldname> <newname>
+.usage_exist>Usage: exist <filename>
+
+$ Main shell loop
+LABEL main
+    $ Show prompt
+    .prompt>PussemblyOS> 
+    OUT -s ..prompt
+    
+    $ Get user input
+    CALL ready
+    
+    $ Load each command string and compare
+    LOAD -s #200 .help
+    LOAD R1 100        $ User input
+    LOAD R2 200        $ Command "help"
+    CALL str_cmp
+    LOAD R3 POP
+    IF R3 == 1 GOTO help_func
+
+    LOAD -s #200 .create
+    LOAD R1 100
+    LOAD R2 200
+    CALL str_cmp
+    LOAD R3 POP
+    IF R3 == 1 GOTO create_func
+
+    LOAD -s #200 .delete
+    LOAD R1 100
+    LOAD R2 200
+    CALL str_cmp
+    LOAD R3 POP
+    IF R3 == 1 GOTO delete_func
+
+    LOAD -s #200 .read
+    LOAD R1 100
+    LOAD R2 200
+    CALL str_cmp
+    LOAD R3 POP
+    IF R3 == 1 GOTO read_func
+
+    LOAD -s #200 .write
+    LOAD R1 100
+    LOAD R2 200
+    CALL str_cmp
+    LOAD R3 POP
+    IF R3 == 1 GOTO write_func
+
+    LOAD -s #200 .rename
+    LOAD R1 100
+    LOAD R2 200
+    CALL str_cmp
+    LOAD R3 POP
+    IF R3 == 1 GOTO rename_func
+
+    LOAD -s #200 .list
+    LOAD R1 100
+    LOAD R2 200
+    CALL str_cmp
+    LOAD R3 POP
+    IF R3 == 1 GOTO list_func
+
+    LOAD -s #200 .exist
+    LOAD R1 100
+    LOAD R2 200
+    CALL str_cmp
+    LOAD R3 POP
+    IF R3 == 1 GOTO exist_func
+
+    $ Unknown command
+    .unknown>Unknown command
+    OUT -s ..unknown
+    GOTO main
+
+$ Command string definitions
+.help>help
+.create>create
+.delete>delete
+.read>read
+.write>write
+.rename>rename
+.list>list
+.exist>exist
+
+$ Command handlers
+LABEL help_func
+    CALL help_func
+    GOTO main
+
+LABEL create_func
+    CALL create_func
+    GOTO main
+
+LABEL delete_func
+    CALL delete_func
+    GOTO main
+
+LABEL read_func
+    CALL read_func
+    GOTO main
+
+LABEL write_func
+    CALL write_func
+    GOTO main
+
+LABEL rename_func
+    CALL rename_func
+    GOTO main
+
+LABEL list_func
+    CALL list_func
+    GOTO main
+
+LABEL exist_func
+    CALL exist_func
+    GOTO main

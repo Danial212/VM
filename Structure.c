@@ -163,7 +163,7 @@ void ReturnStackManitoring()
 
 //                 FUNCTION STRUCTURE
 ///////////////////////////////////////////////////////////
-Function functionList[20];
+Function functionList[100];
 int functionCount = 0;
 
 int findFunctionLine(char *funcName)
@@ -203,7 +203,7 @@ void FunctionsManitoring()
 //                  LABELS STRUCTURE OPERATIONS
 //////////////////////////////////////////////////////////////////
 
-Label labelsList[10];
+Label labelsList[100];
 int labelsCount = 0;
 
 //  List all the label, sith their name and line number, for later jumping actions

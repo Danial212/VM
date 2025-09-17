@@ -18,10 +18,10 @@ int main(int argc, char const *argv[])
 {
     InitializeHardWare();
     bootDisk();
-        
+
     currentProcess.blockName = "Init Process";
 
-    FileReading("TestShell.txt");
+    FileReading("shell.txt");
     LabelListing();
     FunctionListing();
     Init_Data_Structures();
@@ -74,6 +74,7 @@ void FileReading(char *fileName)
         if ((i + 1) >= FileLines)
             FileLines = FileLines * 2;
     }
+
     fclose(file);
 }
 
@@ -200,12 +201,30 @@ void RunPussembler(char **tokens)
 {
     if (StrEqul(tokens[0], "LOAD"))
     {
-        //  The data we want to write into RAM/Register
-        //  It could be from any source, like RAM, Register or directly thorugh user input
-        int *targetStorage = GetTargetStoragePointer(tokens[1]);
-        int data = ValueParser(tokens[2]);
+        //  Write const string into RAM
+        if (StrEqul(tokens[1], "-s"))
+        {
+            int ramlocation = -1;
 
-        *targetStorage = data;
+            if (tokens[2][0] == '[')
+                ramlocation = ValueParser(slice_string(tokens[2], 1, -1));
+            else
+                ramlocation = atoi(tokens[2] + 1);
+            char *constString = get_saved_string(tokens[3] + 1);
+
+            WriteStringIntoRam(ramlocation, constString);
+
+            // RamManitoring();
+        }
+        else
+        {
+            //  The data we want to write into RAM/Register
+            //  It could be from any source, like RAM, Register or directly thorugh user input
+            int *targetStorage = GetTargetStoragePointer(tokens[1]);
+            int data = ValueParser(tokens[2]);
+
+            *targetStorage = data;
+        }
     }
 
     // Adds value of RegisterB to RegisterA → Result saved in RegisterA

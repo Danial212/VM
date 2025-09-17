@@ -38,6 +38,9 @@ void handleSystemCalls()
     case 7:
         renameFile_SystemCall();
         break;
+    case 11:
+        clearScreen_SystemCall();
+        break;
 
     default:
         break;
@@ -129,12 +132,8 @@ void renameFile_SystemCall()
 }
 
 
-
 void clearScreen_SystemCall(){
-    
-}
-void exisProgram_SystemCall(){
-
+    printf("\033[2J\033[H");
 }
 
 /// @brief Gets the target name based on 2th register's pointer

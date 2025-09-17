@@ -36,7 +36,7 @@ typedef struct
     int startLine;
 } Function;
 
-extern Function functionList[20];
+extern Function functionList[100];
 extern int functionCount;
 
 int findFunctionLine(char *funcName); // Returns the line number where the specified function starts
@@ -56,7 +56,7 @@ typedef struct
     int labelLine;
 } Label;
 
-extern Label labelsList[10];
+extern Label labelsList[100];
 extern int labelsCount;
 
 //////////////////////////////////////////////////////////////////
