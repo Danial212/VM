@@ -30,8 +30,11 @@ int main(int argc, char const *argv[])
     {
         for (; currentProcess.currentLine < currentProcess.linesCount; currentProcess.currentLine++)
             RunPussembler(currentProcess.lines[currentProcess.currentLine].tokens);
-        if (!PCB_stack_isEmpty())
+        if (!PCB_stack_isEmpty()){
             currentProcess = PCB_stack_pop();
+            LabelListing();
+            FunctionListing();
+        }
         else
             break;
     }
