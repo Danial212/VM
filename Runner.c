@@ -50,7 +50,7 @@ int main(int argc, char const *argv[])
     // printf("\n");
     // LabelsManitoring();
     // printf("\n");
-    // RamManitoring();
+    RamManitoring();
 }
 
 //  Open and read all the codes inside the target file
@@ -61,7 +61,7 @@ void FileReading(char *fileName)
     if (file == NULL)
         DebugLog("The target file to read the code couldn't be read");
 
-    int FileLines = 400;
+    int FileLines = 500;
     for (size_t i = 0; i < FileLines; i++)
     {
         currentProcess.linesCount = i + 1;
@@ -213,8 +213,6 @@ void RunPussembler(char **tokens)
             char *constString = get_saved_string(tokens[3] + 1);
 
             WriteStringIntoRam(ramlocation, constString);
-
-            // RamManitoring();
         }
         else
         {
@@ -361,6 +359,13 @@ void RunPussembler(char **tokens)
             currentProcess.currentLine = findLabelLine(label);
         else if (StrEqul(tokens[4], "CALL"))
         {
+            int returnAddress = currentProcess.currentLine; // Store the address of the next line after CALL to return to it later
+
+            if (!Push_ReturnAddress(returnAddress))
+            {
+                printf("Error: Stack overflow while saving return address!\n");
+                return;
+            }
             currentProcess.currentLine = findFunctionLine(label);
         }
         else if (StrEqul(tokens[4], "RET"))
@@ -514,8 +519,8 @@ void RunPussembler(char **tokens)
     {
         handleSystemCalls();
     }
-    else
-        return;
+    else if (StrEqul(tokens[0], "MAP"))
+        RamManitoring();
 }
 
 //  Extract the data from the given token.

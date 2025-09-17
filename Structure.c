@@ -104,7 +104,7 @@ void StackManitoring()
 //                  RETURN STACK OPERATIONS
 //////////////////////////////////////////////////////////////////
 
-int returnStack[100];
+int returnStack[200];
 int returnStackIndex = 0;
 
 /// @param address The current line you're calling a function
@@ -163,7 +163,7 @@ void ReturnStackManitoring()
 
 //                 FUNCTION STRUCTURE
 ///////////////////////////////////////////////////////////
-Function functionList[100];
+Function functionList[200];
 int functionCount = 0;
 
 int findFunctionLine(char *funcName)
@@ -203,7 +203,7 @@ void FunctionsManitoring()
 //                  LABELS STRUCTURE OPERATIONS
 //////////////////////////////////////////////////////////////////
 
-Label labelsList[100];
+Label labelsList[200];
 int labelsCount = 0;
 
 //  List all the label, sith their name and line number, for later jumping actions
@@ -241,7 +241,7 @@ void LabelsManitoring()
 //                  CONSTANT STRING STRUCTURE
 //////////////////////////////////////////////////////////////////
 
-ConstString stringList[100];
+ConstString stringList[200];
 int stringListCount = 0;
 
 void saveConstString(char *name, char *str)
@@ -272,7 +272,7 @@ char *get_saved_string(char *name)
 //                  File Management operations
 //////////////////////////////////////////////////////////////////
 
-FileStruct filesList[100];
+FileStruct filesList[200];
 int filesListCount = 0;
 
 int addFileToList(char *name)
@@ -349,9 +349,9 @@ int PCB_stack_isEmpty()
 
 PCB PCB_stack_pop()
 {
-    if (PCB_stack_isEmpty){
+    if (PCB_stack_isEmpty()){
 
-        DebugLog("Error: Stack is empty");
+        DebugLog("Error:PCB Stack is empty");
         exit(EXIT_FAILURE);
     }
     return PCB_Stack[--PCB_StackIndex];

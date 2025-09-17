@@ -36,7 +36,7 @@ typedef struct
     int startLine;
 } Function;
 
-extern Function functionList[100];
+extern Function functionList[200];
 extern int functionCount;
 
 int findFunctionLine(char *funcName); // Returns the line number where the specified function starts
@@ -56,7 +56,7 @@ typedef struct
     int labelLine;
 } Label;
 
-extern Label labelsList[100];
+extern Label labelsList[200];
 extern int labelsCount;
 
 //////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ typedef struct
     char *string;
 } ConstString;
 
-extern ConstString stringList[100];
+extern ConstString stringList[200];
 extern int stringListCount;
 
 void saveConstString(char *name, char *str);
@@ -85,7 +85,7 @@ typedef struct
     int offset;
 } FileStruct;
 
-extern FileStruct filesList[100];
+extern FileStruct filesList[200];
 extern int filesListCount;
 
 int addFileToList(char *name);

@@ -9,5 +9,6 @@
 
 extern const int DEBUG_LOG;
 extern const int BUFFER_SIZE;
+extern const float OS_VERSION;
 
 #endif

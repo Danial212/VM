@@ -9,8 +9,9 @@
 // Enable In-Programm debuging, if the 'DEBUG_LOG' is True(1)
 void DebugLog(const char *__format, ...)
 {
-    if (DEBUG_LOG){
-        
+    if (DEBUG_LOG)
+    {
+
         va_list args;
         _crt_va_start(args, __format);
         vprintf(__format, args);
@@ -39,10 +40,17 @@ int int_length(int num)
     return (floor(log10(num)) + 1);
 }
 
+int min(int a, int b)
+{
+    if (a < b)
+        return a;
+    return b;
+}
+
 // Slicing string from start point, to end point
 char *slice_string(char *str, int start_point, int endPoint)
 {
-    if(endPoint < 0)
+    if (endPoint < 0)
         endPoint += strlen(str);
 
     size_t size = (endPoint - start_point);
