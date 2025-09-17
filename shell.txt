@@ -53,17 +53,17 @@ ENDF
 $ Empty command functions
 FUNC help_func
     .commands> === Aviliable Commands ===
-    .command1> 1. Create --> create a file
-    .command2> 2. Delete --> delete a file
-    .command3> 3. List --> list all files
-    .command4> 4. Read --> read from a file
-    .command5> 5. Write --> write into a file
-    .command6> 6. Help --> show all commands
-    .command7> 7. Rename --> renames a file
-    .command8> 8. Exists --> check if a file exists
-    .command9> 9. Run --> runs a .txt executable file
-    .command10> 10. Version --> show OS Version
-    .command11> 11. Copy --> copy a file's content into another file
+    .command1> 1. create --> create a file
+    .command2> 2. delete --> delete a file
+    .command3> 3. list --> list all files
+    .command4> 4. read --> read from a file
+    .command5> 5. write --> write into a file
+    .command6> 6. help --> show all commands
+    .command7> 7. rename --> renames a file
+    .command8> 8. exists --> check if a file exists
+    .command9> 9. run --> runs a .txt executable file
+    .command10> 10. version --> show OS Version
+    .command11> 11. copy --> copy a file's content into another file
     OUT -s ..commands
 
     OUT -s ..command1
@@ -90,7 +90,7 @@ FUNC create_func
     INP 50 #300
     
     OUT -s ..enterSize
-    INP R3                       $ file's name
+    INP R3                       $ file's size
 
     $ Setup system call registers
     LOAD R1 1                     $ System call #1 (CREATE_FILE)
@@ -242,7 +242,7 @@ FUNC list_func
     
     OUT -s ..separator            $ "========================"
     OUT -s ..total_files          $ "Total files: "
-    OUT R1                       $ Print number of files
+    OUT R1                        $ Print number of files
     OUT -s ..separator            $ "========================"
 ENDF
 
@@ -423,6 +423,13 @@ LABEL main
     LOAD R3 POP
     IF R3 == 1 CALL copy_func
 
+    LOAD -s #200 .exit
+    LOAD R1 100
+    LOAD R2 200
+    CALL str_cmp
+    LOAD R3 POP
+    IF R3 == 1 GOTO shutdown
+
     $ Unknown command
     .unknown>Unknown command
     OUT -s ..unknown
@@ -440,6 +447,8 @@ $ Command string definitions
 .version>version
 .run>run
 .copy>copy
+.exit>exit
+.bye>Shutting down... Goodbye!
 
 $ User intract 
 .enterSourceName>Enter source file name:
@@ -449,3 +458,6 @@ $ User intract
 .enterSize>Enter file size:
 .enterContent>Enter file's Content:
 .enterProgram>Enter program's name (in .txt):
+
+LABEL shutdown
+    OUT -s ..bye
