@@ -195,6 +195,9 @@ void runFile_SystemCall()
     currentProcess = pcb;
     //  Loading the pussembly instructions from the file into our current PCB
     FileReading(fileName);
+
+    LabelListing();
+    FunctionListing();
 }
 
 /// @brief Gets the target name based on 2th register's pointer
