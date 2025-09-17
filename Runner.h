@@ -16,7 +16,7 @@ typedef struct
 
 typedef struct PCB
 {
-    CommandStrcuture lines[350];
+    CommandStrcuture lines[500];
     char *blockName;
     int linesCount;
     int currentLine;
